@@ -4,7 +4,7 @@ use std::error::Error;
 use std::fmt;
 
 /// A Geometrical point that indicate a place on earth
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Point {
     pub x: f32,
     pub y: f32,
@@ -100,3 +100,29 @@ impl fmt::Display for PointError {
 }
 
 impl Error for PointError {}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn point_should_be_created_with_coordinate_given() {
+        let point = Builder::new().x(5.5).y(1.4).build().unwrap();
+        assert_eq!(point, Point { x: 5.5, y: 1.4 })
+    }
+
+    #[test]
+    fn point_should_give_coordinate_by_adress() {
+        let point = Builder::new()
+            .adress("144 rue du bosquet 34980 Saint Clement de riviere".to_string())
+            .build()
+            .unwrap();
+        assert_eq!(
+            point,
+            Point {
+                x: 43.680885,
+                y: 3.8425386
+            }
+        )
+    }
+}
