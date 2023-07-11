@@ -1,5 +1,5 @@
 use crate::prelude::*;
-use reqwest;
+use crate::utils::http;
 use std::error::Error;
 use std::fmt;
 
@@ -39,25 +39,28 @@ impl Builder {
     pub fn build(&self) -> Result<Point> {
         if self.x.is_none() || self.y.is_none() {
             let (x, y) = self.get_address()?;
-        return Ok(Point { x, y });
+            return Ok(Point { x, y });
         }
-        let x = self.x.ok_or_else(|| Box::new(PointError("x".to_string())))?;
-        let y = self.y.ok_or_else(|| Box::new(PointError("y".to_string())))?;
+        let x = self
+            .x
+            .ok_or_else(|| Box::new(PointError("x".to_string())))?;
+        let y = self
+            .y
+            .ok_or_else(|| Box::new(PointError("y".to_string())))?;
         Ok(Point { x, y })
     }
 
     fn get_address(&self) -> Result<(f32, f32)> {
-        let client = reqwest::blocking::Client::builder()
-        .user_agent("Diagora")
-        .build()?;
+        let client = http::Builder::new()
+            .user_agent("Diagora".to_string())
+            .build()?;
 
-        let url = format!(
+        let url =
+            format!(
             "https://nominatim.openstreetmap.org/search/?q={}&limit=5&format=json&addressdetails=1",
             self.adress.as_ref().ok_or_else(|| Box::new(PointError("adress".to_string())))?
         );
-        let request = client.request(reqwest::Method::GET, &url);
-        let response = request.send()?.text()?;
-        let body: Vec<serde_json::Value> = serde_json::from_str(&response)?;
+        let body = client.get(url)?;
         let x = body[0]["lat"].as_str().unwrap().parse::<f32>().unwrap();
         let y = body[0]["lon"].as_str().unwrap().parse::<f32>().unwrap();
 
@@ -70,7 +73,7 @@ struct PointError(String);
 
 impl fmt::Display for PointError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Error: {}", self.0)
+        write!(f, "Error in Point: {}", self.0)
     }
 }
 
