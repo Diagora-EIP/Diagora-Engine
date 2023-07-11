@@ -32,6 +32,10 @@ cargo build
 
 Test:
 ```
-Cargo test
+cargo test
 ```
 
+Docs:
+```
+cargo doc
+```

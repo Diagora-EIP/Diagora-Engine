@@ -6,6 +6,7 @@ mod utils;
 mod core;
 use crate::core::*;
 
+/// Start of the projet by this function
 fn main() -> Result<()> {
     println!("Hello, world!");
 
