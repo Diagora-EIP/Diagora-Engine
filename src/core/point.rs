@@ -1,7 +1,5 @@
 use crate::prelude::*;
 use crate::utils::http;
-use std::error::Error;
-use std::fmt;
 
 /// A Geometrical point that indicate a place on earth
 #[derive(Debug, PartialEq)]
@@ -58,10 +56,10 @@ impl Builder {
         }
         let x = self
             .x
-            .ok_or_else(|| Box::new(PointError("x".to_string())))?;
+            .ok_or_else(|| Error::PointError("No x point".to_string()))?;
         let y = self
             .y
-            .ok_or_else(|| Box::new(PointError("y".to_string())))?;
+            .ok_or_else(|| Error::PointError("No y point".to_string()))?;
         Ok(Point { x, y })
     }
 
@@ -80,26 +78,20 @@ impl Builder {
         let url =
             format!(
             "https://nominatim.openstreetmap.org/search/?q={}&limit=5&format=json&addressdetails=1",
-            self.adress.as_ref().ok_or_else(|| Box::new(PointError("adress".to_string())))?
+            self.adress.as_ref().ok_or_else(|| Error::PointError("No Adress provide".to_string()))?
         );
         let body = client.get(url)?;
+        if body.len() <= 0 {
+            return Err(Error::PointError(
+                "Adress not valid provide a valide Adress".to_string(),
+            ));
+        }
         let x = body[0]["lat"].as_str().unwrap().parse::<f32>().unwrap();
         let y = body[0]["lon"].as_str().unwrap().parse::<f32>().unwrap();
 
         Ok((x, y))
     }
 }
-
-#[derive(Debug)]
-struct PointError(String);
-
-impl fmt::Display for PointError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Error in Point: {}", self.0)
-    }
-}
-
-impl Error for PointError {}
 
 #[cfg(test)]
 mod tests {
@@ -124,5 +116,14 @@ mod tests {
                 y: 3.8425386
             }
         )
+    }
+
+    #[test]
+    #[should_panic]
+    fn point_should_return_an_error() {
+        Builder::new()
+            .adress("this adress don't exist bro".to_string())
+            .build()
+            .unwrap();
     }
 }

@@ -1,6 +1,4 @@
 use crate::prelude::*;
-use std::error::Error;
-use std::fmt;
 
 use reqwest;
 
@@ -63,14 +61,3 @@ impl Builder {
         Ok(Http { client })
     }
 }
-
-#[derive(Debug)]
-struct HttpError(String);
-
-impl fmt::Display for HttpError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Error in Http: {}", self.0)
-    }
-}
-
-impl Error for HttpError {}

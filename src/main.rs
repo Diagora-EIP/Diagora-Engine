@@ -1,6 +1,8 @@
 mod prelude;
 use crate::prelude::*;
 
+mod error;
+
 mod utils;
 
 mod core;
@@ -15,7 +17,12 @@ fn main() -> Result<()> {
     let point_two = point::Builder::new()
         .adress("144 rue du bosquet 34980 Saint Clement de riviere".to_string())
         .build()?;
+
     println!("{:?}", point);
     println!("{:?}", point_two);
+    let point_three = point::Builder::new()
+        .adress("this adress don't exist bro".to_string())
+        .build();
+    println!("{:?}", point_three);
     Ok(())
 }

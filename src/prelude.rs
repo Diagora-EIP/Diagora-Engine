@@ -1,5 +1,5 @@
 //! Crate Prelude
 
-pub type Result<T> = core::result::Result<T, Box<dyn std::error::Error>>;
+pub use crate::error::Error;
 
-
+pub type Result<T> = core::result::Result<T, Error>;
