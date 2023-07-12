@@ -1,2 +1,2 @@
-/// All Module of Core folder
+pub mod path;
 pub mod point;

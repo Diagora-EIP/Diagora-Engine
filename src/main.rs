@@ -23,6 +23,10 @@ fn main() -> Result<()> {
     let point_three = point::Builder::new()
         .adress("this adress don't exist bro".to_string())
         .build();
+
     println!("{:?}", point_three);
+
+    let path = path::Builder::new().point(point).point(point_two).build()?;
+    println!("{:?}", path);
     Ok(())
 }

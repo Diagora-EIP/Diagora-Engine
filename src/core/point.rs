@@ -2,7 +2,7 @@ use crate::prelude::*;
 use crate::utils::http;
 
 /// A Geometrical point that indicate a place on earth
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Point {
     pub x: f32,
     pub y: f32,

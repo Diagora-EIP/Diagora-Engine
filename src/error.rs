@@ -8,6 +8,9 @@ pub enum Error {
     #[error("PointError: {0}")]
     PointError(String),
 
+    #[error("PathError: {0}")]
+    PathError(String),
+
     #[error("ReqwestError: {0}")]
     Reqwest(String),
 
