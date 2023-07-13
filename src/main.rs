@@ -18,6 +18,10 @@ fn main() -> Result<()> {
         .adress("144 rue du bosquet 34980 Saint Clement de riviere".to_string())
         .build()?;
 
+    let point_four = point::Builder::new()
+        .adress("2800 avenue des moulins".to_string())
+        .build()?;
+
     println!("{:?}", point);
     println!("{:?}", point_two);
     let point_three = point::Builder::new()
@@ -26,7 +30,11 @@ fn main() -> Result<()> {
 
     println!("{:?}", point_three);
 
-    let path = path::Builder::new().point(point).point(point_two).build()?;
+    let path = path::Builder::new()
+        .point(point)
+        .point(point_two)
+        .point(point_four)
+        .build()?;
     println!("{:?}", path);
     Ok(())
 }

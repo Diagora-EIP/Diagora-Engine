@@ -1,9 +1,13 @@
+use itertools::Itertools;
+
 use crate::point::Point;
 use crate::prelude::*;
 
 /// Array of Point with detailed road
 #[derive(Debug, PartialEq)]
 pub struct Path {
+    pub start_point: Point,
+    pub return_to_start: bool,
     pub points: Vec<Point>,
     pub road: Vec<Point>,
 }
@@ -12,12 +16,18 @@ pub struct Path {
 #[derive(Default)]
 pub struct Builder {
     pub points: Vec<Point>,
+    pub return_to_start: Option<bool>,
+    pub start_point: Option<Point>,
 }
 
 impl Builder {
     /// Init of builder
     pub fn new() -> Self {
-        Builder { points: Vec::new() }
+        Builder {
+            points: Vec::new(),
+            return_to_start: Some(false),
+            start_point: None,
+        }
     }
 
     /// Modification of all the array using a another array
@@ -33,10 +43,24 @@ impl Builder {
     }
 
     /// Building of a Path
-    pub fn build(self) -> Result<Path> {
+    pub fn build(&self) -> Result<Path> {
         Ok(Path {
-            points: self.points,
+            points: self.points.clone(),
             road: Vec::new(),
+            start_point: self.points[0],
+            return_to_start: false,
+        })
+    }
+
+    fn create_best_path(&self) -> Result<Path> {
+        for perm in self.points.iter().permutations(self.points.len()).unique() {
+            println!("{:?}", perm);
+        }
+        Ok(Path {
+            points: self.points.clone(),
+            road: Vec::new(),
+            start_point: self.points[0],
+            return_to_start: false,
         })
     }
 }

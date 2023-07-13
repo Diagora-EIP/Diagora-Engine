@@ -1,11 +1,12 @@
 use crate::prelude::*;
 use crate::utils::http;
+use ordered_float::OrderedFloat;
 
 /// A Geometrical point that indicate a place on earth
-#[derive(Debug, PartialEq, Clone, Copy)]
+#[derive(Debug, PartialEq, Clone, Copy, Eq, Hash)]
 pub struct Point {
-    pub x: f32,
-    pub y: f32,
+    pub x: OrderedFloat<f32>,
+    pub y: OrderedFloat<f32>,
 }
 
 /// Builder of a Point
@@ -52,7 +53,10 @@ impl Builder {
     pub fn build(&self) -> Result<Point> {
         if self.x.is_none() || self.y.is_none() {
             let (x, y) = self.get_address()?;
-            return Ok(Point { x, y });
+            return Ok(Point {
+                x: OrderedFloat(x),
+                y: OrderedFloat(y),
+            });
         }
         let x = self
             .x
@@ -60,7 +64,10 @@ impl Builder {
         let y = self
             .y
             .ok_or_else(|| Error::PointError("No y point".to_string()))?;
-        Ok(Point { x, y })
+        Ok(Point {
+            x: OrderedFloat(x),
+            y: OrderedFloat(y),
+        })
     }
 
     /// Functiont that will use the adress to search coordinate
@@ -100,7 +107,13 @@ mod tests {
     #[test]
     fn point_should_be_created_with_coordinate_given() {
         let point = Builder::new().x(5.5).y(1.4).build().unwrap();
-        assert_eq!(point, Point { x: 5.5, y: 1.4 })
+        assert_eq!(
+            point,
+            Point {
+                x: OrderedFloat(5.5),
+                y: OrderedFloat(1.4)
+            }
+        )
     }
 
     #[test]
@@ -112,8 +125,8 @@ mod tests {
         assert_eq!(
             point,
             Point {
-                x: 43.680885,
-                y: 3.8425386
+                x: OrderedFloat(43.680885),
+                y: OrderedFloat(3.8425386)
             }
         )
     }
