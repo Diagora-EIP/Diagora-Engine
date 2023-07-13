@@ -126,8 +126,8 @@ mod tests {
         assert_eq!(
             point,
             Point {
-                x: OrderedFloat(43.680885),
-                y: OrderedFloat(3.8425386)
+                y: OrderedFloat(43.6808855),
+                x: OrderedFloat(3.8425387004424802)
             }
         )
     }

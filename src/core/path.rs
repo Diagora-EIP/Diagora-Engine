@@ -123,10 +123,12 @@ mod tests {
 
     #[test]
     fn creation_of_path_using_multiple_point() -> Result<()> {
-        let point = point::Builder::new().x(1.42).y(2.0).build()?;
+        let point = point::Builder::new()
+            .adress("144 rue du bosquet 34980 Saint Clement de riviere".to_string())
+            .build()?;
 
         let point_two = point::Builder::new()
-            .adress("144 rue du bosquet 34980 Saint Clement de riviere".to_string())
+            .adress("2800 avenue des moulins".to_string())
             .build()?;
 
         let mut vector_test = Vec::new();
@@ -139,10 +141,12 @@ mod tests {
 
     #[test]
     fn creation_of_path_using_vector_point() -> Result<()> {
-        let point = point::Builder::new().x(1.42).y(2.0).build()?;
+        let point = point::Builder::new()
+            .adress("144 rue du bosquet 34980 Saint Clement de riviere".to_string())
+            .build()?;
 
         let point_two = point::Builder::new()
-            .adress("144 rue du bosquet 34980 Saint Clement de riviere".to_string())
+            .adress("2800 avenue des moulins".to_string())
             .build()?;
 
         let mut vector_test = Vec::new();
