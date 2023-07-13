@@ -1,47 +1,47 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct RequestedPath {
     code: String,
     pub routes: Vec<Route>,
-    waypoints: Vec<Waypoint>,
+    pub waypoints: Vec<Waypoint>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Route {
-    legs: Vec<Leg>,
-    weight_name: String,
-    weight: f64,
+    pub legs: Vec<Leg>,
+    pub weight_name: String,
+    pub weight: f64,
     pub duration: f64,
-    distance: f64,
+    pub distance: f64,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Leg {
-    steps: Vec<Step>,
-    summary: String,
-    weight: f64,
-    duration: f64,
-    distance: f64,
+    pub steps: Vec<Step>,
+    pub summary: String,
+    pub weight: f64,
+    pub duration: f64,
+    pub distance: f64,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Step {
-    geometry: String,
-    maneuver: Maneuver,
-    mode: Mode,
-    driving_side: DrivingSide,
-    name: String,
-    intersections: Vec<Intersection>,
-    weight: f64,
-    duration: f64,
-    distance: f64,
+    pub geometry: String,
+    pub maneuver: Maneuver,
+    pub mode: Mode,
+    pub driving_side: DrivingSide,
+    pub name: String,
+    pub intersections: Vec<Intersection>,
+    pub weight: f64,
+    pub duration: f64,
+    pub distance: f64,
     #[serde(rename = "ref")]
-    step_ref: Option<String>,
-    rotary_name: Option<String>,
+    pub step_ref: Option<String>,
+    pub rotary_name: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone, Copy)]
 #[serde(rename_all = "snake_case")]
 pub enum DrivingSide {
     Left,
@@ -53,7 +53,7 @@ pub enum DrivingSide {
     Straight,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Intersection {
     out: Option<i64>,
     entry: Vec<bool>,
@@ -63,24 +63,24 @@ pub struct Intersection {
     intersection_in: Option<i64>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Maneuver {
-    bearing_after: i64,
+    pub bearing_after: i64,
     bearing_before: i64,
-    location: Vec<f64>,
+    pub location: Vec<f64>,
     modifier: Option<DrivingSide>,
     #[serde(rename = "type")]
     maneuver_type: String,
     exit: Option<i64>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone, Copy)]
 #[serde(rename_all = "snake_case")]
 pub enum Mode {
     Driving,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Waypoint {
     hint: String,
     distance: f64,

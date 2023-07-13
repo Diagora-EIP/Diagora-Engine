@@ -5,15 +5,15 @@ use ordered_float::OrderedFloat;
 /// A Geometrical point that indicate a place on earth
 #[derive(Debug, PartialEq, Clone, Copy, Eq, Hash)]
 pub struct Point {
-    pub x: OrderedFloat<f32>,
-    pub y: OrderedFloat<f32>,
+    pub x: OrderedFloat<f64>,
+    pub y: OrderedFloat<f64>,
 }
 
 /// Builder of a Point
 #[derive(Default)]
 pub struct Builder {
-    pub x: Option<f32>,
-    pub y: Option<f32>,
+    pub x: Option<f64>,
+    pub y: Option<f64>,
     pub adress: Option<String>,
 }
 
@@ -24,13 +24,13 @@ impl Builder {
     }
 
     /// Init of x value
-    pub fn x(mut self, x: f32) -> Self {
+    pub fn x(mut self, x: f64) -> Self {
         self.x = Some(x);
         self
     }
 
     /// Init of y value
-    pub fn y(mut self, y: f32) -> Self {
+    pub fn y(mut self, y: f64) -> Self {
         self.y = Some(y);
         self
     }
@@ -75,9 +75,9 @@ impl Builder {
     ///
     /// # Return
     ///
-    /// * (f32, f32) - A Tuple of point
+    /// * (f64, f32) - A Tuple of point
     ///
-    fn get_address(&self) -> Result<(f32, f32)> {
+    fn get_address(&self) -> Result<(f64, f64)> {
         let client = http::Builder::new()
             .user_agent("Diagora".to_string())
             .build()?;
@@ -94,8 +94,8 @@ impl Builder {
                 "Adress not valid provide a valide Adress".to_string(),
             ));
         }
-        let x = body[0]["lon"].as_str().unwrap().parse::<f32>().unwrap();
-        let y = body[0]["lat"].as_str().unwrap().parse::<f32>().unwrap();
+        let x = body[0]["lon"].as_str().unwrap().parse::<f64>().unwrap();
+        let y = body[0]["lat"].as_str().unwrap().parse::<f64>().unwrap();
 
         Ok((x, y))
     }
