@@ -34,6 +34,14 @@ Test:
 ```
 cargo test
 ```
+If you want to get coverage and a web view of coverage install:
+```
+cargo install cargo-tarpaulin
+```
+then do:
+```
+cargo tarpaulin --out Html
+```
 
 Docs:
 ```
