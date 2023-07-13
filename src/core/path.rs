@@ -2,6 +2,8 @@ use itertools::Itertools;
 
 use crate::point::Point;
 use crate::prelude::*;
+use crate::types::requested_path;
+use crate::utils::http;
 
 /// Array of Point with detailed road
 #[derive(Debug, PartialEq)]
@@ -44,6 +46,20 @@ impl Builder {
 
     /// Building of a Path
     pub fn build(&self) -> Result<Path> {
+        Ok(self.create_best_path()?)
+    }
+
+    fn create_best_path(&self) -> Result<Path> {
+        let client = http::Builder::new()
+            .user_agent("Diagora".to_string())
+            .build()?;
+
+        for perm in self.points.iter().permutations(self.points.len()).unique() {
+            let url = self.create_url_path(perm);
+            let response = client.clone().get(url.clone())?;
+            let body: requested_path::RequestedPath = serde_json::from_str(&response)?;
+            let time = body.routes[0].duration;
+        }
         Ok(Path {
             points: self.points.clone(),
             road: Vec::new(),
@@ -52,16 +68,13 @@ impl Builder {
         })
     }
 
-    fn create_best_path(&self) -> Result<Path> {
-        for perm in self.points.iter().permutations(self.points.len()).unique() {
-            println!("{:?}", perm);
-        }
-        Ok(Path {
-            points: self.points.clone(),
-            road: Vec::new(),
-            start_point: self.points[0],
-            return_to_start: false,
-        })
+    fn create_url_path(&self, points: Vec<&Point>) -> String {
+        let format_point: String = points
+            .into_iter()
+            .map(|point| point.x.to_string() + "," + &point.y.to_string())
+            .join(";");
+        let url = format!("https://routing.openstreetmap.de/routed-car/route/v1/driving/{}?overview=false&alternatives=true&steps=true", format_point);
+        url
     }
 }
 

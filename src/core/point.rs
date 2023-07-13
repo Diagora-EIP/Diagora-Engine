@@ -87,14 +87,15 @@ impl Builder {
             "https://nominatim.openstreetmap.org/search/?q={}&limit=5&format=json&addressdetails=1",
             self.adress.as_ref().ok_or_else(|| Error::PointError("No Adress provide".to_string()))?
         );
-        let body = client.get(url)?;
+        let response = client.get(url)?;
+        let body: Vec<serde_json::Value> = serde_json::from_str(&response)?;
         if body.len() <= 0 {
             return Err(Error::PointError(
                 "Adress not valid provide a valide Adress".to_string(),
             ));
         }
-        let x = body[0]["lat"].as_str().unwrap().parse::<f32>().unwrap();
-        let y = body[0]["lon"].as_str().unwrap().parse::<f32>().unwrap();
+        let x = body[0]["lon"].as_str().unwrap().parse::<f32>().unwrap();
+        let y = body[0]["lat"].as_str().unwrap().parse::<f32>().unwrap();
 
         Ok((x, y))
     }

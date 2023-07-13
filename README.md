@@ -47,3 +47,5 @@ Docs:
 ```
 cargo doc
 ```
+
+Create Type Easily at this url https://app.quicktype.io/

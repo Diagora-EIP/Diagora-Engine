@@ -3,7 +3,7 @@ use crate::prelude::*;
 use reqwest;
 
 /// Overide of reqwest lib that let me more liberty and clarity
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Http {
     pub client: reqwest::blocking::Client,
 }
@@ -21,11 +21,10 @@ impl Http {
     ///
     /// * Vec<serde_json::Value> - the Json result of the function
     ///
-    pub fn get(self, url: String) -> Result<Vec<serde_json::Value>> {
+    pub fn get(self, url: String) -> Result<String> {
         let request = self.client.request(reqwest::Method::GET, &url);
         let response = request.send()?.text()?;
-        let body: Vec<serde_json::Value> = serde_json::from_str(&response)?;
-        Ok(body)
+        Ok(response)
     }
 }
 
