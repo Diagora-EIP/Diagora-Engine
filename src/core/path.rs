@@ -101,7 +101,6 @@ impl Builder {
     }
 
     fn get_graphical_path(&self, body: requested_path::RequestedPath) -> Vec<Point> {
-        println!("{:?}", body);
         let mut roads: Vec<Point> = Vec::new();
         let road = &body.routes[0].legs[0];
 

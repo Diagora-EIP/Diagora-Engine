@@ -7,12 +7,16 @@ mod types;
 
 mod utils;
 
+mod execution_flow;
+
 mod core;
 use crate::core::*;
 
 /// Start of the projet by this function
 fn main() -> Result<()> {
-    println!("Hello, world!");
+    let args = execution_flow::args_handling::Builder::new().build();
+
+    println!("{:?}", args);
 
     let point_two = point::Builder::new()
         .adress("144 rue du bosquet 34980 Saint Clement de riviere".to_string())
