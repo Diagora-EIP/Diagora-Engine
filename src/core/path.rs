@@ -5,9 +5,10 @@ use crate::point::Point;
 use crate::prelude::*;
 use crate::types::requested_path;
 use crate::utils::http;
+use serde::{Deserialize, Serialize};
 
 /// Array of Point with detailed road
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct Path {
     pub start_point: Point,
     pub return_to_start: bool,

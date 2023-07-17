@@ -1,9 +1,10 @@
 use crate::prelude::*;
 use crate::utils::http;
 use ordered_float::OrderedFloat;
+use serde::{Deserialize, Serialize};
 
 /// A Geometrical point that indicate a place on earth
-#[derive(Debug, PartialEq, Clone, Copy, Eq, Hash)]
+#[derive(Debug, PartialEq, Clone, Copy, Eq, Hash, Serialize, Deserialize)]
 pub struct Point {
     pub x: OrderedFloat<f64>,
     pub y: OrderedFloat<f64>,

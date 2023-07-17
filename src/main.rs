@@ -12,6 +12,8 @@ mod execution_flow;
 mod core;
 use crate::core::*;
 
+use std::fs::File;
+
 /// Start of the projet by this function
 fn main() -> Result<()> {
     let args = execution_flow::args_handling::Builder::new().build();
@@ -33,6 +35,6 @@ fn main() -> Result<()> {
         .point(point_two)
         .point(point_four)
         .build()?;
-    println!("{:?}", path);
+    serde_json::to_writer_pretty(&File::create("test_file.json")?, &path)?;
     Ok(())
 }
