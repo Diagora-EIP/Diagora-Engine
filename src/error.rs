@@ -16,6 +16,9 @@ pub enum Error {
 
     #[error("Error while Parsing Json: {0}")]
     Json(String),
+
+    #[error("Error: Bad Parameter")]
+    BadParameter(),
 }
 
 impl From<reqwest::Error> for Error {
