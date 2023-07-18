@@ -4,10 +4,11 @@ use ordered_float::OrderedFloat;
 use serde::{Deserialize, Serialize};
 
 /// A Geometrical point that indicate a place on earth
-#[derive(Debug, PartialEq, Clone, Copy, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Eq, Hash, Serialize, Deserialize)]
 pub struct Point {
     pub x: OrderedFloat<f64>,
     pub y: OrderedFloat<f64>,
+    pub address: Option<String>,
 }
 
 /// Builder of a Point
@@ -57,6 +58,7 @@ impl Builder {
             return Ok(Point {
                 x: OrderedFloat(x),
                 y: OrderedFloat(y),
+                address: self.adress.clone(),
             });
         }
         let x = self
@@ -68,6 +70,7 @@ impl Builder {
         Ok(Point {
             x: OrderedFloat(x),
             y: OrderedFloat(y),
+            address: None,
         })
     }
 
@@ -113,7 +116,8 @@ mod tests {
             point,
             Point {
                 x: OrderedFloat(5.5),
-                y: OrderedFloat(1.4)
+                y: OrderedFloat(1.4),
+                address: None,
             }
         )
     }
@@ -128,7 +132,8 @@ mod tests {
             point,
             Point {
                 y: OrderedFloat(43.6808855),
-                x: OrderedFloat(3.8425387004424802)
+                x: OrderedFloat(3.8425387004424802),
+                address: Some("144 rue du bosquet 34980 Saint Clement de riviere".to_string()),
             }
         )
     }

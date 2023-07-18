@@ -69,12 +69,16 @@ impl Builder {
         let mut best_duration: f64 = 100000000.0;
         let mut best_body: Option<requested_path::RequestedPath> = None;
 
-        for perm in self.points.iter().permutations(self.points.len()).unique() {
+        for mut perm in self.points.iter().permutations(self.points.len()).unique() {
+            perm.insert(0, self.start_point.as_ref().unwrap());
+
+            if self.return_to_start {
+                perm.push(self.start_point.as_ref().unwrap());
+            }
             let url = self.create_url_path(&perm);
             let response = client.clone().get(url)?;
             let body: requested_path::RequestedPath = serde_json::from_str(&response)?;
             let time = body.routes[0].duration;
-
             if best_duration > time {
                 best_duration = time;
                 best_path = perm.into_iter().cloned().collect();
@@ -87,7 +91,7 @@ impl Builder {
         Ok(Path {
             points: best_path,
             road: self.get_graphical_path(best_body.unwrap()),
-            start_point: self.points[0],
+            start_point: self.start_point.clone().unwrap(),
             return_to_start: false,
         })
     }
@@ -132,27 +136,9 @@ mod tests {
             .build()?;
 
         let mut vector_test = Vec::new();
-        vector_test.push(point);
-        vector_test.push(point_two);
-        let path = Builder::new().point(point).point(point_two).build()?;
-        assert_eq!(path.points, vector_test);
-        Ok(())
-    }
-
-    #[test]
-    fn creation_of_path_using_vector_point() -> Result<()> {
-        let point = point::Builder::new()
-            .adress("144 rue du bosquet 34980 Saint Clement de riviere".to_string())
-            .build()?;
-
-        let point_two = point::Builder::new()
-            .adress("2800 avenue des moulins".to_string())
-            .build()?;
-
-        let mut vector_test = Vec::new();
-        vector_test.push(point);
-        vector_test.push(point_two);
-        let path = Builder::new().points(vector_test.clone()).build()?;
+        vector_test.push(point.clone());
+        vector_test.push(point_two.clone());
+        let path = Builder::new().start_point(point).point(point_two).build()?;
         assert_eq!(path.points, vector_test);
         Ok(())
     }

@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Serialize, Deserialize, Clone)]
 
 pub struct Address {
-    address: String,
-    begin: Option<String>,
-    end: Option<String>,
+    pub address: String,
+    pub begin: Option<String>,
+    pub end: Option<String>,
 }

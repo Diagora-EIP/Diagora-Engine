@@ -16,25 +16,31 @@ use std::fs::File;
 
 /// Start of the projet by this function
 fn main() -> Result<()> {
-    let args = execution_flow::args_handling::Builder::new().build();
+    let args = execution_flow::args_handling::Builder::new().build()?;
 
-    println!("{:?}", args);
-
-    let point_two = point::Builder::new()
-        .adress("144 rue du bosquet 34980 Saint Clement de riviere".to_string())
+    let start_point = point::Builder::new()
+        .adress(args.start_adress.address)
         .build()?;
 
-    let point_four = point::Builder::new()
-        .adress("2800 avenue des moulins".to_string())
-        .build()?;
+    let mut points: Vec<point::Point> = Vec::new();
 
-    println!("{:?}", point_two);
-    println!("{:?}", point_four);
+    for adress in args.address {
+        let point = point::Builder::new().adress(adress.address).build()?;
+        points.push(point)
+    }
 
     let path = path::Builder::new()
-        .point(point_two)
-        .point(point_four)
+        .start_point(start_point)
+        .points(points)
+        .return_to_start(args.return_to_start)
         .build()?;
-    serde_json::to_writer_pretty(&File::create("test_file.json")?, &path)?;
+    serde_json::to_writer_pretty(
+        &File::create(args.filepath.clone().expect("No filepath Provided") + "_result.json")?,
+        &path,
+    )?;
+    println!(
+        "{:?}",
+        args.filepath.expect("No filepath Provided") + "_result.json"
+    );
     Ok(())
 }
