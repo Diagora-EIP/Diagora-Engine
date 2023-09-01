@@ -88,7 +88,7 @@ impl Builder {
 
         let url =
             format!(
-            "https://nominatim.openstreetmap.org/search/?q={}&limit=5&format=json&addressdetails=1",
+            "https://nominatim.openstreetmap.org/search?q={}&limit=5&format=json&addressdetails=1",
             self.adress.as_ref().ok_or_else(|| Error::PointError("No Adress provide".to_string()))?
         );
         let response = client.get(url)?;
