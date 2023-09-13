@@ -1,5 +1,6 @@
-use itertools::Itertools;
+//! The path module is used to create a path between multiple points
 
+use itertools::Itertools;
 use crate::core::point;
 use crate::point::Point;
 use crate::prelude::*;
@@ -35,21 +36,56 @@ impl Builder {
     }
 
     /// Modification of all the array using a another array
+    ///
+    /// # Arguments
+    ///
+    /// * `points` - Array of Point
+    ///
+    /// # Return
+    ///
+    /// * Self - Return the builder
     pub fn points(mut self, points: Vec<Point>) -> Self {
         self.points = points;
         self
     }
 
     /// Add of a point for next calculation
+    ///
+    /// # Arguments
+    ///
+    /// * `point` - Point that will be added
+    ///
+    /// # Return
+    ///
+    /// * Self - Return the builder
     pub fn point(mut self, point: Point) -> Self {
         self.points.push(point);
         self
     }
 
+    /// Modification of the start point
+    ///
+    /// # Arguments
+    ///
+    /// * `start_point` - Point that will be the start point
+    ///
+    /// # Return
+    ///
+    /// * Self - Return the builder
     pub fn start_point(mut self, start_point: Point) -> Self {
         self.start_point = Some(start_point);
         self
     }
+
+    /// Modification of the return_to_start
+    ///
+    /// # Arguments
+    ///
+    /// * `return_to_start` - Bool that will be the return_to_start
+    ///
+    /// # Return
+    ///
+    /// * Self - Return the builder
 
     pub fn return_to_start(mut self, return_to_start: bool) -> Self {
         self.return_to_start = return_to_start;
@@ -57,10 +93,19 @@ impl Builder {
     }
 
     /// Building of a Path
+    ///
+    /// # Return
+    ///
+    /// * Path - Return the path
     pub fn build(&self) -> Result<Path> {
         Ok(self.create_best_path()?)
     }
 
+    /// Create the best path by creating all the possible path and compare them
+    ///
+    /// # Return
+    ///
+    /// * Path - Return the best path
     fn create_best_path(&self) -> Result<Path> {
         let client = http::Builder::new()
             .user_agent("Diagora".to_string())
@@ -96,6 +141,15 @@ impl Builder {
         })
     }
 
+    /// Create the url for the request
+    ///
+    /// # Arguments
+    ///
+    /// * `points` - Array of Point
+    ///
+    /// # Return
+    ///
+    /// * String - Return the url
     fn create_url_path(&self, points: &Vec<&Point>) -> String {
         let format_point: String = points
             .into_iter()
@@ -105,6 +159,15 @@ impl Builder {
         url
     }
 
+    /// Get the graphical path for gps use
+    ///
+    /// # Arguments
+    ///
+    /// * `body` - Body of the request
+    /// 
+    /// # Return
+    /// 
+    /// * Vec<Point> - Return the graphical path
     fn get_graphical_path(&self, body: requested_path::RequestedPath) -> Vec<Point> {
         let mut roads: Vec<Point> = Vec::new();
         let road = &body.routes[0].legs[0];

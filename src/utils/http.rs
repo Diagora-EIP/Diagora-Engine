@@ -1,5 +1,4 @@
 use crate::prelude::*;
-
 use reqwest;
 
 /// Overide of reqwest lib that let me more liberty and clarity
@@ -19,7 +18,7 @@ impl Http {
     ///
     /// # Return
     ///
-    /// * Vec<serde_json::Value> - the Json result of the function
+    /// * String - the  result of the request
     ///
     pub fn get(self, url: String) -> Result<String> {
         let request = self.client.request(reqwest::Method::GET, &url);

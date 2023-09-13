@@ -1,17 +1,13 @@
+//! Entry point of the program
+
 mod prelude;
 use crate::prelude::*;
-
 mod error;
-
 mod types;
-
 mod utils;
-
 mod execution_flow;
-
 mod core;
 use crate::core::*;
-
 use std::fs::File;
 
 /// Start of the projet by this function

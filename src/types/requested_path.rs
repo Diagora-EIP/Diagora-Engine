@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 
+/// Struct that represent a path requested to the OSRM API
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct RequestedPath {
     code: String,
