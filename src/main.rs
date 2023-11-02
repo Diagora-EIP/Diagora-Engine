@@ -15,13 +15,13 @@ fn main() -> Result<()> {
     let args = execution_flow::args_handling::Builder::new().build()?;
 
     let start_point = point::Builder::new()
-        .adress(args.start_adress.address)
+        .adress(args.start_adress.address).movable(false)
         .build()?;
 
     let mut points: Vec<point::Point> = Vec::new();
 
     for adress in args.address {
-        let point = point::Builder::new().adress(adress.address).build()?;
+        let point = point::Builder::new().adress(adress.address).movable(adress.movable.is_some()).build()?;
         points.push(point)
     }
 

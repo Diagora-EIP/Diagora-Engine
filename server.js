@@ -20,7 +20,7 @@ app.post("/launch_itinary/", async (req, res) => {
   );
   console.log(content);
   res.send(JSON.parse(content));
-});
+}); 
 
 app.listen(port, () => {
   console.log("Ready to launch Evaluation on port: " + port);

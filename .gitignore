@@ -2,3 +2,4 @@
 .vscode
 tarpaulin-report.html
 node_modules
+*.json
