@@ -1,7 +1,9 @@
 use std::{env, fs};
 
 use crate::prelude::*;
-use crate::types::config::Config;
+use crate::types::config_update::ConfigUpdate;
+use crate::types::either::Either;
+use crate::types::config_create::ConfigCreate;
 
 #[derive(Default)]
 pub struct Builder {}
@@ -17,13 +19,18 @@ impl Builder {
     /// # Return
     /// 
     /// * Config - Return the config object file that will be used
-    pub fn build(&self) -> Result<Config> {
+    pub fn build(&self) -> Result<Either<ConfigCreate, ConfigUpdate>> {
         let args = self.get_args();
-        if args[0] == "--json" || args[0] == "-j" {
+        if args[0] == "--createItinary" || args[0] == "-c" {
             let content = fs::read_to_string(args[1].clone()).expect("Should Provide a valid file");
-            let mut json: Config = serde_json::from_str(&content)?;
+            let mut json: ConfigCreate = serde_json::from_str(&content)?;
             json.filepath = Some(args[1].clone());
-            return Ok(json);
+            return Ok(Either::Left(json));
+        } else if args[0] == "--updateItinary" || args[0] == "-u" {
+            let content = fs::read_to_string(args[1].clone()).expect("Should Provide a valid file");
+            let mut json: ConfigUpdate = serde_json::from_str(&content)?;
+            json.filepath = Some(args[1].clone());
+            return Ok(Either::Right(json));
         }
         return Err(Error::BadParameter());
     }
