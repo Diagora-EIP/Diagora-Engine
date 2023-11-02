@@ -9,7 +9,6 @@ pub struct Point {
     pub x: OrderedFloat<f64>,
     pub y: OrderedFloat<f64>,
     pub address: Option<String>,
-    pub movable: Option<bool>,
 }
 
 /// Builder of a Point
@@ -18,7 +17,6 @@ pub struct Builder {
     pub x: Option<f64>,
     pub y: Option<f64>,
     pub adress: Option<String>,
-    pub movable: Option<bool>,
 }
 
 impl Builder {
@@ -45,11 +43,6 @@ impl Builder {
         self
     }
 
-    pub fn movable(mut self, movable: bool) -> Self {
-        self.movable = Some(movable);
-        self
-    }
-
     /// Build of the Point
     ///
     /// If you provide a X and a Y this will create a classic point
@@ -66,7 +59,6 @@ impl Builder {
                 x: OrderedFloat(x),
                 y: OrderedFloat(y),
                 address: self.adress.clone(),
-                movable: self.movable.clone(),
             });
         }
         let x = self
@@ -79,7 +71,6 @@ impl Builder {
             x: OrderedFloat(x),
             y: OrderedFloat(y),
             address: None,
-            movable: Some(true),
         })
     }
 
@@ -127,7 +118,6 @@ mod tests {
                 x: OrderedFloat(5.5),
                 y: OrderedFloat(1.4),
                 address: None,
-                movable: Some(true),
             }
         )
     }
@@ -144,7 +134,6 @@ mod tests {
                 y: OrderedFloat(43.6808855),
                 x: OrderedFloat(3.8425387004424802),
                 address: Some("144 rue du bosquet 34980 Saint Clement de riviere".to_string()),
-                movable: Some(true),
 
             }
         )

@@ -1,16 +1,16 @@
 //! Entry point of the program
 
 mod prelude;
-use crate::prelude::*;
 mod error;
 mod types;
 mod utils;
 mod execution_flow;
 mod core;
+use crate::prelude::*;
 use crate::core::*;
 use crate::types::either::Either;
-
 use crate::execution_flow::create_itinary::create_itinary;
+use crate::execution_flow::update_itinary::update_itinary;
 
 /// Start of the projet by this function
 fn main() -> Result<()> {
@@ -21,7 +21,7 @@ fn main() -> Result<()> {
             create_itinary(config)?;
         }
         Either::Right(config) => {
-            panic!("Not implemented yet")
+            update_itinary(config)?;
         }
     }
     Ok(())

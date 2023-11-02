@@ -6,13 +6,13 @@ use std::fs::File;
 
 pub fn create_itinary(args: ConfigCreate) -> Result<()> {
     let start_point = point::Builder::new()
-        .adress(args.start_adress.address).movable(false)
+        .adress(args.start_adress.address)
         .build()?;
 
     let mut points: Vec<point::Point> = Vec::new();
 
     for adress in args.address {
-        let point = point::Builder::new().adress(adress.address).movable(adress.movable.is_some()).build()?;
+        let point = point::Builder::new().adress(adress.address).build()?;
         points.push(point)
     }
 
