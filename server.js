@@ -12,7 +12,7 @@ const port = 9876;
 app.post("/launch_itinary/", async (req, res) => {
   let fileName = crypto.randomBytes(20).toString("hex") + ".json";
   fs.writeFileSync(fileName, JSON.stringify(req.body));
-  const { stdout } = await exec(`cargo run -- --json ${fileName}`);
+  const { stdout } = await exec(`cargo run -- --createItinary ${fileName}`);
   console.log(stdout);
   const content = fs.readFileSync(
     stdout.replaceAll('"', "").replace("\n", ""),
@@ -25,7 +25,7 @@ app.post("/launch_itinary/", async (req, res) => {
 app.post("/update_itinary/", async (req, res) => {
   let fileName = crypto.randomBytes(20).toString("hex") + ".json";
   fs.writeFileSync(fileName, JSON.stringify(req.body));
-  const { stdout } = await exec(`cargo run -- --json ${fileName}`);
+  const { stdout } = await exec(`cargo run -- --updateItinary ${fileName}`);
   console.log(stdout);
   const content = fs.readFileSync(
     stdout.replaceAll('"', "").replace("\n", ""),

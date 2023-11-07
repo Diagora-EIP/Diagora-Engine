@@ -9,7 +9,7 @@ use crate::utils::http;
 use serde::{Deserialize, Serialize};
 
 /// Array of Point with detailed road
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
 pub struct Path {
     pub start_point: Point,
     pub return_to_start: bool,
@@ -21,6 +21,7 @@ pub struct Path {
 #[derive(Default)]
 pub struct Builder {
     pub points: Vec<Point>,
+    pub addable_point: Option<Point>,
     pub return_to_start: bool,
     pub start_point: Option<Point>,
 }
@@ -30,6 +31,7 @@ impl Builder {
     pub fn new() -> Self {
         Builder {
             points: Vec::new(),
+            addable_point: None,
             return_to_start: false,
             start_point: None,
         }
@@ -60,6 +62,11 @@ impl Builder {
     /// * Self - Return the builder
     pub fn point(mut self, point: Point) -> Self {
         self.points.push(point);
+        self
+    }
+
+    pub fn addable_point(mut self, addable_point: Point) -> Self {
+        self.addable_point = Some(addable_point);
         self
     }
 
@@ -98,6 +105,9 @@ impl Builder {
     ///
     /// * Path - Return the path
     pub fn build(&self) -> Result<Path> {
+        if self.addable_point.is_some() {
+            return Ok(self.add_a_point_to_path()?);
+        }
         Ok(self.create_best_path()?)
     }
 
@@ -120,7 +130,7 @@ impl Builder {
             if self.return_to_start {
                 perm.push(self.start_point.as_ref().unwrap());
             }
-            let url = self.create_url_path(&perm);
+            let url = self.create_url_path_itirator(&perm);
             let response = client.clone().get(url)?;
             let body: requested_path::RequestedPath = serde_json::from_str(&response)?;
             let time = body.routes[0].duration;
@@ -141,6 +151,49 @@ impl Builder {
         })
     }
 
+    fn add_a_point_to_path(&self) -> Result<Path> {
+        let client = http::Builder::new()
+            .user_agent("Diagora".to_string())
+            .build()?;
+        let mut best_path: Vec<Point> = Vec::new();
+        let mut best_duration: f64 = 100000000.0;
+        let mut best_body: Option<requested_path::RequestedPath> = None;
+    
+        // loop of the size of the Vector Point and add the addable point at each position of the vector verifying the best path
+        for i in 0..self.points.len() {
+            let mut perm = self.points.clone();
+            perm.insert(i, self.addable_point.as_ref().unwrap().clone());
+            perm.insert(0, self.start_point.as_ref().unwrap().clone());
+    
+            if self.return_to_start {
+                perm.push(self.start_point.as_ref().unwrap().clone());
+            }
+            
+            let url = self.create_url_path(perm.clone()); // Clone perm just before using it
+            let response = client.clone().get(url)?;
+            let body: requested_path::RequestedPath = serde_json::from_str(&response)?;
+            let time = body.routes[0].duration;
+    
+            if best_duration > time {
+                best_duration = time;
+                best_path = perm;
+                best_body = Some(body);
+            }
+        }
+    
+        if best_path.is_empty() {
+            return Err(Error::PathError("No best path found".to_string()));
+        }
+    
+        Ok(Path {
+            points: best_path,
+            road: self.get_graphical_path(best_body.unwrap()),
+            start_point: self.start_point.clone().unwrap(),
+            return_to_start: false,
+        })
+    }
+        
+
     /// Create the url for the request
     ///
     /// # Arguments
@@ -150,7 +203,17 @@ impl Builder {
     /// # Return
     ///
     /// * String - Return the url
-    fn create_url_path(&self, points: &Vec<&Point>) -> String {
+    fn create_url_path_itirator(&self, points: &Vec<&Point>) -> String {
+        let format_point: String = points
+            .into_iter()
+            .map(|point| point.x.to_string() + "," + &point.y.to_string())
+            .join(";");
+        let url = format!("https://routing.openstreetmap.de/routed-car/route/v1/driving/{}?overview=false&alternatives=true&steps=true", format_point);
+        url
+    }
+
+
+    fn create_url_path(&self, points: Vec<Point>) -> String {
         let format_point: String = points
             .into_iter()
             .map(|point| point.x.to_string() + "," + &point.y.to_string())

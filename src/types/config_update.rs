@@ -7,5 +7,6 @@ use crate::types::adress::Address;
 pub struct ConfigUpdate {
     pub filepath: Option<String>,
     pub address_path: Vec<Address>,
-    pub addable_address: Vec<Address>,
+    pub addable_address: Address,
+    pub start_adress: Address,
 }
