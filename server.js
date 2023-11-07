@@ -9,6 +9,19 @@ app.use(cors());
 app.use(express.json());
 const port = 9876;
 
+deleteJsonFiles = () => {
+  fs.readdir(".", (err, files) => {
+    if (err) throw err;
+
+    for (const file of files) {
+      if (file.endsWith(".json") && !file.startsWith("package")) {
+        fs.unlinkSync(file);
+      }
+    }
+  });
+}
+
+
 app.post("/launch_itinary/", async (req, res) => {
   let fileName = crypto.randomBytes(20).toString("hex") + ".json";
   fs.writeFileSync(fileName, JSON.stringify(req.body));
@@ -20,6 +33,7 @@ app.post("/launch_itinary/", async (req, res) => {
   );
   console.log(content);
   res.send(JSON.parse(content));
+  deleteJsonFiles();
 });
 
 app.post("/update_itinary/", async (req, res) => {
@@ -33,6 +47,7 @@ app.post("/update_itinary/", async (req, res) => {
   );
   console.log(content);
   res.send(JSON.parse(content));
+  deleteJsonFiles();
 });
 
 app.listen(port, () => {
