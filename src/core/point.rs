@@ -9,6 +9,8 @@ pub struct Point {
     pub x: OrderedFloat<f64>,
     pub y: OrderedFloat<f64>,
     pub address: Option<String>,
+    pub timeto_go: Option<OrderedFloat<f64>>,
+    pub time_to_stay: Option<OrderedFloat<f64>>,
 }
 
 /// Builder of a Point
@@ -17,6 +19,8 @@ pub struct Builder {
     pub x: Option<f64>,
     pub y: Option<f64>,
     pub adress: Option<String>,
+    pub timeto_go: Option<OrderedFloat<f64>>,
+    pub time_to_stay: Option<OrderedFloat<f64>>,
 }
 
 impl Builder {
@@ -43,6 +47,18 @@ impl Builder {
         self
     }
 
+    /// Init of timetoGo value
+    pub fn timeto_go(mut self, timeto_go: f64) -> Self {
+        self.timeto_go = Some(OrderedFloat(timeto_go));
+        self
+    }
+
+    /// Init of time_to_stay value
+    pub fn time_to_stay(mut self, time_to_stay: f64) -> Self {
+        self.time_to_stay = Some(OrderedFloat(time_to_stay));
+        self
+    }
+
     /// Build of the Point
     ///
     /// If you provide a X and a Y this will create a classic point
@@ -59,6 +75,8 @@ impl Builder {
                 x: OrderedFloat(x),
                 y: OrderedFloat(y),
                 address: self.adress.clone(),
+                timeto_go: self.timeto_go.clone(),
+                time_to_stay: self.time_to_stay.clone(),
             });
         }
         let x = self
@@ -71,6 +89,8 @@ impl Builder {
             x: OrderedFloat(x),
             y: OrderedFloat(y),
             address: None,
+            timeto_go: self.timeto_go.clone(),
+            time_to_stay: self.time_to_stay.clone(),
         })
     }
 
@@ -118,6 +138,8 @@ mod tests {
                 x: OrderedFloat(5.5),
                 y: OrderedFloat(1.4),
                 address: None,
+                timeto_go: None,
+                time_to_stay: None,
             }
         )
     }
@@ -134,6 +156,8 @@ mod tests {
                 y: OrderedFloat(43.6808855),
                 x: OrderedFloat(3.8425387004424802),
                 address: Some("144 rue du bosquet 34980 Saint Clement de riviere".to_string()),
+                timeto_go: None,
+                time_to_stay: None,
 
             }
         )

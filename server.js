@@ -25,8 +25,8 @@ deleteJsonFiles = () => {
 app.post("/launch_itinary/", async (req, res) => {
   let fileName = crypto.randomBytes(20).toString("hex") + ".json";
   fs.writeFileSync(fileName, JSON.stringify(req.body));
-  const { stdout } = await exec(`cargo run -- --createItinary ${fileName}`);
-  console.log(stdout);
+  const { stdout, stderr } = await exec(`cargo run -- --createItinary ${fileName}`);
+  console.log(stderr);
   const content = fs.readFileSync(
     stdout.replaceAll('"', "").replace("\n", ""),
     { encoding: "utf8", flag: "r" }
@@ -39,7 +39,7 @@ app.post("/launch_itinary/", async (req, res) => {
 app.post("/update_itinary/", async (req, res) => {
   let fileName = crypto.randomBytes(20).toString("hex") + ".json";
   fs.writeFileSync(fileName, JSON.stringify(req.body));
-  const { stdout } = await exec(`cargo run -- --updateItinary ${fileName}`);
+  const { stdout, stderr } = await exec(`cargo run -- --updateItinary ${fileName}`);
   console.log(stdout);
   const content = fs.readFileSync(
     stdout.replaceAll('"', "").replace("\n", ""),

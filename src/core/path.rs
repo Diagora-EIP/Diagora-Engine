@@ -1,6 +1,7 @@
 //! The path module is used to create a path between multiple points
 
 use itertools::Itertools;
+use ordered_float::OrderedFloat;
 use crate::core::point;
 use crate::point::Point;
 use crate::prelude::*;
@@ -11,7 +12,6 @@ use serde::{Deserialize, Serialize};
 /// Array of Point with detailed road
 #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
 pub struct Path {
-    pub start_point: Point,
     pub return_to_start: bool,
     pub points: Vec<Point>,
     pub road: Vec<Point>,
@@ -144,9 +144,8 @@ impl Builder {
             return Err(Error::PathError("No best path found".to_string()));
         }
         Ok(Path {
-            points: best_path,
+            points: self.apply_time_to_best_path(&best_path, best_body.clone().unwrap()),
             road: self.get_graphical_path(best_body.unwrap()),
-            start_point: self.start_point.clone().unwrap(),
             return_to_start: false,
         })
     }
@@ -184,11 +183,10 @@ impl Builder {
         if best_path.is_empty() {
             return Err(Error::PathError("No best path found".to_string()));
         }
-    
+
         Ok(Path {
             points: best_path,
             road: self.get_graphical_path(best_body.unwrap()),
-            start_point: self.start_point.clone().unwrap(),
             return_to_start: false,
         })
     }
@@ -233,16 +231,29 @@ impl Builder {
     /// * Vec<Point> - Return the graphical path
     fn get_graphical_path(&self, body: requested_path::RequestedPath) -> Vec<Point> {
         let mut roads: Vec<Point> = Vec::new();
-        let road = &body.routes[0].legs[0];
+        let road = &body.routes[0];
 
-        for step in road.steps.clone() {
-            let point = point::Builder::new()
-                .x(step.maneuver.location[0])
-                .y(step.maneuver.location[1])
-                .build();
-            roads.push(point.unwrap())
+        for leg in road.legs.clone() {
+            for step in leg.steps.clone() {
+                let point = point::Builder::new()
+                    .x(step.maneuver.location[0])
+                    .y(step.maneuver.location[1])
+                    .timeto_go(step.duration)
+                    .build();
+                roads.push(point.unwrap())
+            }
         }
         return roads;
+    }
+
+    fn apply_time_to_best_path(&self, best_path: &Vec<Point>, best_body: requested_path::RequestedPath) -> Vec<Point> {
+        let road = &best_body.routes[0];
+        let mut best_path = best_path.clone();
+        best_path[0].timeto_go = Some(OrderedFloat(0.0));
+        for (i, leg) in road.legs.clone().iter().enumerate() {
+            best_path[i + 1].timeto_go = Some(OrderedFloat(leg.duration));
+        }
+        return best_path.clone();
     }
 }
 
