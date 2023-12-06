@@ -145,7 +145,7 @@ impl Builder {
             return Err(Error::PathError("No best path found".to_string()));
         }
         Ok(Path {
-            points: self.apply_time_to_best_path(&best_path, best_body.clone().unwrap()),
+            points: self.apply_time_to_best_path(&best_path, best_body.clone().unwrap(), self.start_point.as_ref().unwrap().start_at.unwrap()),
             road: self.get_graphical_path(best_body.unwrap()),
             return_to_start: false,
         })
@@ -247,12 +247,13 @@ impl Builder {
         return roads;
     }
 
-    fn apply_time_to_best_path(&self, best_path: &Vec<Point>, best_body: requested_path::RequestedPath) -> Vec<Point> {
+    fn apply_time_to_best_path(&self, best_path: &Vec<Point>, best_body: requested_path::RequestedPath, hour_start: OrderedFloat<f64>) -> Vec<Point> {
         let road = &best_body.routes[0];
         let mut best_path = best_path.clone();
-        best_path[0].timeto_go = Some(OrderedFloat(0.0));
+        best_path[0].timeto_go = Some(hour_start);
+        best_path[0].start_at = Some(hour_start);
         for (i, leg) in road.legs.clone().iter().enumerate() {
-            best_path[i + 1].timeto_go = Some(OrderedFloat(leg.duration));
+            best_path[i + 1].timeto_go = Some(OrderedFloat(leg.duration) + best_path[i].timeto_go.unwrap());
         }
         return best_path.clone();
     }
