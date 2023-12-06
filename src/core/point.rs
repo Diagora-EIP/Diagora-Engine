@@ -10,8 +10,12 @@ pub struct Point {
     pub y: OrderedFloat<f64>,
     pub address: Option<String>,
     pub timeto_go: Option<OrderedFloat<f64>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub time_to_stay: Option<OrderedFloat<f64>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub start_at: Option<OrderedFloat<f64>>,
 }
+
 
 /// Builder of a Point
 #[derive(Default)]
@@ -21,6 +25,7 @@ pub struct Builder {
     pub adress: Option<String>,
     pub timeto_go: Option<OrderedFloat<f64>>,
     pub time_to_stay: Option<OrderedFloat<f64>>,
+    pub start_at: Option<OrderedFloat<f64>>,
 }
 
 impl Builder {
@@ -59,6 +64,11 @@ impl Builder {
         self
     }
 
+    pub fn start_at(mut self, start_at: f64) -> Self {
+        self.start_at = Some(OrderedFloat(start_at));
+        self
+    }
+
     /// Build of the Point
     ///
     /// If you provide a X and a Y this will create a classic point
@@ -77,6 +87,7 @@ impl Builder {
                 address: self.adress.clone(),
                 timeto_go: self.timeto_go.clone(),
                 time_to_stay: self.time_to_stay.clone(),
+                start_at: self.start_at.clone(),
             });
         }
         let x = self
@@ -91,6 +102,7 @@ impl Builder {
             address: None,
             timeto_go: self.timeto_go.clone(),
             time_to_stay: self.time_to_stay.clone(),
+            start_at: self.start_at.clone(),
         })
     }
 
@@ -140,6 +152,7 @@ mod tests {
                 address: None,
                 timeto_go: None,
                 time_to_stay: None,
+                start_at: None,
             }
         )
     }
@@ -158,6 +171,7 @@ mod tests {
                 address: Some("144 rue du bosquet 34980 Saint Clement de riviere".to_string()),
                 timeto_go: None,
                 time_to_stay: None,
+                start_at: None,
 
             }
         )

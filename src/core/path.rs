@@ -6,6 +6,7 @@ use crate::core::point;
 use crate::point::Point;
 use crate::prelude::*;
 use crate::types::requested_path;
+use crate::types::graphical_point::{GraphicalPoint, Builder as GraphicalPointBuilder};
 use crate::utils::http;
 use serde::{Deserialize, Serialize};
 
@@ -14,7 +15,7 @@ use serde::{Deserialize, Serialize};
 pub struct Path {
     pub return_to_start: bool,
     pub points: Vec<Point>,
-    pub road: Vec<Point>,
+    pub road: Vec<GraphicalPoint>,
 }
 
 /// Builder of Path
@@ -229,18 +230,18 @@ impl Builder {
     /// # Return
     /// 
     /// * Vec<Point> - Return the graphical path
-    fn get_graphical_path(&self, body: requested_path::RequestedPath) -> Vec<Point> {
-        let mut roads: Vec<Point> = Vec::new();
+    fn get_graphical_path(&self, body: requested_path::RequestedPath) -> Vec<GraphicalPoint> {
+        let mut roads: Vec<GraphicalPoint> = Vec::new();
         let road = &body.routes[0];
 
         for leg in road.legs.clone() {
             for step in leg.steps.clone() {
-                let point = point::Builder::new()
+                let graphical_point = GraphicalPointBuilder::new()
                     .x(step.maneuver.location[0])
                     .y(step.maneuver.location[1])
-                    .timeto_go(step.duration)
+                    .time_elapsed(step.duration)
                     .build();
-                roads.push(point.unwrap())
+                roads.push(graphical_point)
             }
         }
         return roads;
