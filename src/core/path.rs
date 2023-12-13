@@ -135,7 +135,7 @@ impl Builder {
             let response = client.clone().get(url)?;
             let body: requested_path::RequestedPath = serde_json::from_str(&response)?;
             let time = body.routes[0].duration;
-            if best_duration > time {
+            if best_duration > time && self.itinary_possible_with_fix_hour_point(body.clone()) {
                 best_duration = time;
                 best_path = perm.into_iter().cloned().collect();
                 best_body = Some(body);
@@ -149,6 +149,10 @@ impl Builder {
             road: self.get_graphical_path(best_body.unwrap()),
             return_to_start: false,
         })
+    }
+
+    fn itinary_possible_with_fix_hour_point(&self, requested_path: requested_path::RequestedPath) -> bool {
+        return true;
     }
 
     fn add_a_point_to_path(&self) -> Result<Path> {
@@ -250,10 +254,10 @@ impl Builder {
     fn apply_time_to_best_path(&self, best_path: &Vec<Point>, best_body: requested_path::RequestedPath, hour_start: OrderedFloat<f64>) -> Vec<Point> {
         let road = &best_body.routes[0];
         let mut best_path = best_path.clone();
-        best_path[0].timeto_go = Some(hour_start);
+        best_path[0].arrive_at = Some(hour_start);
         best_path[0].start_at = Some(hour_start);
         for (i, leg) in road.legs.clone().iter().enumerate() {
-            best_path[i + 1].timeto_go = Some(OrderedFloat(leg.duration) + best_path[i].timeto_go.unwrap());
+            best_path[i + 1].arrive_at = Some(OrderedFloat(leg.duration) + best_path[i].arrive_at.unwrap());
         }
         return best_path.clone();
     }

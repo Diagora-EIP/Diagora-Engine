@@ -9,11 +9,13 @@ pub struct Point {
     pub x: OrderedFloat<f64>,
     pub y: OrderedFloat<f64>,
     pub address: Option<String>,
-    pub timeto_go: Option<OrderedFloat<f64>>,
+    pub arrive_at: Option<OrderedFloat<f64>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub time_to_stay: Option<OrderedFloat<f64>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub start_at: Option<OrderedFloat<f64>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub end_at: Option<OrderedFloat<f64>>,
 }
 
 
@@ -23,9 +25,10 @@ pub struct Builder {
     pub x: Option<f64>,
     pub y: Option<f64>,
     pub adress: Option<String>,
-    pub timeto_go: Option<OrderedFloat<f64>>,
+    pub arrive_at: Option<OrderedFloat<f64>>,
     pub time_to_stay: Option<OrderedFloat<f64>>,
     pub start_at: Option<OrderedFloat<f64>>,
+    pub end_at: Option<OrderedFloat<f64>>,
 }
 
 impl Builder {
@@ -53,8 +56,8 @@ impl Builder {
     }
 
     /// Init of timetoGo value
-    pub fn timeto_go(mut self, timeto_go: f64) -> Self {
-        self.timeto_go = Some(OrderedFloat(timeto_go));
+    pub fn arrive_at(mut self, arrive_at: f64) -> Self {
+        self.arrive_at = Some(OrderedFloat(arrive_at));
         self
     }
 
@@ -64,8 +67,19 @@ impl Builder {
         self
     }
 
-    pub fn start_at(mut self, start_at: f64) -> Self {
-        self.start_at = Some(OrderedFloat(start_at));
+    pub fn start_at(mut self, start_at: Option<f64>) -> Self {
+        if start_at.is_none() {
+            return self;
+        }
+        self.start_at = Some(OrderedFloat(start_at.unwrap()));
+        self
+    }
+
+    pub fn end_at(mut self, end_at: Option<f64>) -> Self {
+        if end_at.is_none() {
+            return self;
+        }
+        self.end_at = Some(OrderedFloat(end_at.unwrap()));
         self
     }
 
@@ -85,9 +99,10 @@ impl Builder {
                 x: OrderedFloat(x),
                 y: OrderedFloat(y),
                 address: self.adress.clone(),
-                timeto_go: self.timeto_go.clone(),
+                arrive_at: self.arrive_at.clone(),
                 time_to_stay: self.time_to_stay.clone(),
                 start_at: self.start_at.clone(),
+                end_at: self.end_at.clone(),
             });
         }
         let x = self
@@ -100,9 +115,10 @@ impl Builder {
             x: OrderedFloat(x),
             y: OrderedFloat(y),
             address: None,
-            timeto_go: self.timeto_go.clone(),
+            arrive_at: self.arrive_at.clone(),
             time_to_stay: self.time_to_stay.clone(),
             start_at: self.start_at.clone(),
+            end_at: self.end_at.clone(),
         })
     }
 
@@ -150,9 +166,10 @@ mod tests {
                 x: OrderedFloat(5.5),
                 y: OrderedFloat(1.4),
                 address: None,
-                timeto_go: None,
+                arrive_at: None,
                 time_to_stay: None,
                 start_at: None,
+                end_at: None,
             }
         )
     }
@@ -169,10 +186,10 @@ mod tests {
                 y: OrderedFloat(43.6808855),
                 x: OrderedFloat(3.8425387004424802),
                 address: Some("144 rue du bosquet 34980 Saint Clement de riviere".to_string()),
-                timeto_go: None,
+                arrive_at: None,
                 time_to_stay: None,
                 start_at: None,
-
+                end_at: None,
             }
         )
     }

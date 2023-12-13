@@ -6,4 +6,5 @@ use serde::{Deserialize, Serialize};
 pub struct Address {
     pub address: String,
     pub start_at: Option<f64>,
+    pub end_at: Option<f64>,
 }

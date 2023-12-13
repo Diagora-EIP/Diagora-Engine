@@ -19,12 +19,12 @@ pub fn create_itinary(args: ConfigCreate) -> Result<()> {
     }
     let start_point = point::Builder::new()
         .adress(args.start_adress.address)
-        .start_at(args.start_adress.start_at.unwrap())
+        .start_at(args.start_adress.start_at)
         .build()?;
     let mut points: Vec<point::Point> = Vec::new();
 
     for adress in args.address {
-        let point = point::Builder::new().adress(adress.address).build()?;
+        let point = point::Builder::new().adress(adress.address).start_at(adress.start_at).end_at(adress.end_at).build()?;
         points.push(point)
     }
 
