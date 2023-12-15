@@ -122,7 +122,7 @@ impl Builder {
             .user_agent("Diagora".to_string())
             .build()?;
         let mut best_path: Vec<Point> = Vec::new();
-        let mut best_duration: f64 = 100000000.0;
+        let mut best_duration: OrderedFloat<f64> = OrderedFloat(f64::MAX);
         let mut best_body: Option<requested_path::RequestedPath> = None;
 
         for mut perm in self.points.iter().permutations(self.points.len()).unique() {
@@ -134,8 +134,9 @@ impl Builder {
             let url = self.create_url_path_itirator(&perm);
             let response = client.clone().get(url)?;
             let body: requested_path::RequestedPath = serde_json::from_str(&response)?;
-            let time = body.routes[0].duration;
-            if best_duration > time && self.itinary_possible_with_fix_hour_point(body.clone()) {
+            let time = self.calculate_time_with_fix_hour_point(&perm.clone().into_iter().cloned().collect(), body.clone(), self.start_point.as_ref().unwrap().start_at.unwrap());
+
+            if best_duration > time && self.verify_time(&perm.clone().into_iter().cloned().collect(), body.clone()) {
                 best_duration = time;
                 best_path = perm.into_iter().cloned().collect();
                 best_body = Some(body);
@@ -151,8 +152,40 @@ impl Builder {
         })
     }
 
-    fn itinary_possible_with_fix_hour_point(&self, requested_path: requested_path::RequestedPath) -> bool {
+    fn verify_time(&self, path: &Vec<Point>, body: requested_path::RequestedPath) -> bool {
+        let path = self.apply_time_to_best_path(path, body, self.start_point.as_ref().unwrap().start_at.unwrap());
+        for (i, point) in path.iter().enumerate() {
+            if point.end_at.is_some() && point.end_at.unwrap() < point.start_at.unwrap() {
+                return false;
+            }
+            if i + 1 < path.len() && point.end_at.is_some() && path[i + 1].start_at.unwrap() < point.end_at.unwrap() {
+                return false;
+            }
+            if point.arrive_at.unwrap() > point.start_at.unwrap() {
+                return false;
+            }
+        }
         return true;
+    }
+
+    fn calculate_time_with_fix_hour_point(&self, path: &Vec<Point>, body: requested_path::RequestedPath, hour_start: OrderedFloat<f64>) -> OrderedFloat<f64> {
+        let road = &body.routes[0];
+        let mut path = path.clone();
+        path[0].arrive_at = Some(hour_start);
+        path[0].start_at = Some(hour_start);
+        for (i, leg) in road.legs.clone().iter().enumerate() {
+            if path[i].end_at.is_some() {
+                let proposed_arrival = path[i].end_at.unwrap() + OrderedFloat(leg.duration);
+                path[i + 1].arrive_at = Some(proposed_arrival.min(path[i + 1].arrive_at.unwrap_or(proposed_arrival)));
+            } else {
+                path[i + 1].arrive_at = Some(OrderedFloat(leg.duration) + path[i].arrive_at.unwrap());
+            }
+            if path[i + 1].start_at.is_none() {
+                path[i + 1].start_at = path[i + 1].arrive_at.clone();
+            }
+        }
+        let total_time = path[path.len() - 1].arrive_at.unwrap() - hour_start;
+        return total_time;
     }
 
     fn add_a_point_to_path(&self) -> Result<Path> {
@@ -257,7 +290,15 @@ impl Builder {
         best_path[0].arrive_at = Some(hour_start);
         best_path[0].start_at = Some(hour_start);
         for (i, leg) in road.legs.clone().iter().enumerate() {
-            best_path[i + 1].arrive_at = Some(OrderedFloat(leg.duration) + best_path[i].arrive_at.unwrap());
+            if best_path[i].end_at.is_some() {
+
+                best_path[i + 1].arrive_at = Some(best_path[i].end_at.unwrap() + OrderedFloat(leg.duration));
+            } else {
+                best_path[i + 1].arrive_at = Some(OrderedFloat(leg.duration) + best_path[i].arrive_at.unwrap());
+            }
+            if best_path[i + 1].start_at.is_none() {
+                best_path[i + 1].start_at = best_path[i + 1].arrive_at.clone();
+            }
         }
         return best_path.clone();
     }
