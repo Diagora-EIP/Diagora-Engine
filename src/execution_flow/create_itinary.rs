@@ -1,4 +1,6 @@
-use crate::error;
+
+use itertools::Either;
+
 use crate::prelude::*;
 use crate::types::config_create::ConfigCreate;
 use crate::core::path;
@@ -33,6 +35,14 @@ pub fn create_itinary(args: ConfigCreate) -> Result<()> {
         .points(points)
         .return_to_start(args.return_to_start)
         .build()?;
-    let _ = write_in_output(Some(args.filepath.unwrap() + "_result.json"), &path);
+
+    match path {
+        Either::Left(path) => {
+            let _ = write_in_output(Some(args.filepath.unwrap() + "_result.json"), &path);
+        }
+        Either::Right(error) => {
+            let _ = write_error_output(args.filepath, &error);
+        }
+    }
     Ok(())
 }

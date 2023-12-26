@@ -1,8 +1,12 @@
+use itertools::Either;
+
 use crate::prelude::*;
 use crate::types::config_update::ConfigUpdate;
 use crate::core::path;
 use crate::core::point;
 use std::fs::File;
+use crate::utils::writer::{write_in_output, write_error_output};
+
 
 
 pub fn update_itinary(args: ConfigUpdate) -> Result<()> {
@@ -20,13 +24,13 @@ pub fn update_itinary(args: ConfigUpdate) -> Result<()> {
         .points(points)
         .addable_point(addable_point).start_point(start_point)
         .build()?;
-    serde_json::to_writer_pretty(
-        &File::create(args.filepath.clone().expect("No filepath Provided") + "_result.json")?,
-        &path,
-    )?;
-    println!(
-        "{:?}",
-        args.filepath.expect("No filepath Provided") + "_result.json"
-    );
+    match path {
+        Either::Left(path) => {
+            let _ = write_in_output(Some(args.filepath.unwrap() + "_result.json"), &path);
+        }
+        Either::Right(error) => {
+            let _ = write_error_output(args.filepath, &error);
+        }
+    }
     Ok(())
 }

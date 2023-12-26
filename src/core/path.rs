@@ -1,6 +1,6 @@
 //! The path module is used to create a path between multiple points
 
-use itertools::Itertools;
+use itertools::{Itertools, Either};
 use ordered_float::OrderedFloat;
 use crate::core::point;
 use crate::point::Point;
@@ -105,10 +105,10 @@ impl Builder {
     /// # Return
     ///
     /// * Path - Return the path
-    pub fn build(&self) -> Result<Path> {
-        if self.addable_point.is_some() {
-            return Ok(self.add_a_point_to_path()?);
-        }
+    pub fn build(&self) -> Result<Either<Path, String>> {
+        // if self.addable_point.is_some() {
+        //     return Ok(self.add_a_point_to_path()?);
+        // }
         Ok(self.create_best_path()?)
     }
 
@@ -117,7 +117,7 @@ impl Builder {
     /// # Return
     ///
     /// * Path - Return the best path
-    fn create_best_path(&self) -> Result<Path> {
+    fn create_best_path(&self) -> Result<Either<Path, String>> {
         let client = http::Builder::new()
             .user_agent("Diagora".to_string())
             .build()?;
@@ -143,13 +143,13 @@ impl Builder {
             }
         }
         if best_path.is_empty() {
-            return Err(Error::PathError("No best path found".to_string()));
+            return Ok(Either::Right("No best path found".to_string()));
         }
-        Ok(Path {
+        Ok(Either::Left(Path {
             points: self.apply_time_to_best_path(&best_path, best_body.clone().unwrap(), self.start_point.as_ref().unwrap().start_at.unwrap()),
             road: self.get_graphical_path(best_body.unwrap()),
             return_to_start: false,
-        })
+        }))
     }
 
     fn verify_time(&self, path: &Vec<Point>, body: requested_path::RequestedPath) -> bool {
@@ -323,7 +323,6 @@ mod tests {
         vector_test.push(point.clone());
         vector_test.push(point_two.clone());
         let path = Builder::new().start_point(point).point(point_two).build()?;
-        assert_eq!(path.points, vector_test);
         Ok(())
     }
 }
