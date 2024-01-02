@@ -106,9 +106,9 @@ impl Builder {
     ///
     /// * Path - Return the path
     pub fn build(&self) -> Result<Either<Path, String>> {
-        // if self.addable_point.is_some() {
-        //     return Ok(self.add_a_point_to_path()?);
-        // }
+        if self.addable_point.is_some() {
+            return Ok(self.add_a_point_to_path()?);
+        }
         Ok(self.create_best_path()?)
     }
 
@@ -188,12 +188,12 @@ impl Builder {
         return total_time;
     }
 
-    fn add_a_point_to_path(&self) -> Result<Path> {
+    fn add_a_point_to_path(&self) -> Result<Either<Path, String>> {
         let client = http::Builder::new()
             .user_agent("Diagora".to_string())
             .build()?;
         let mut best_path: Vec<Point> = Vec::new();
-        let mut best_duration: f64 = 100000000.0;
+        let mut best_duration: OrderedFloat<f64> = OrderedFloat(f64::MAX);
         let mut best_body: Option<requested_path::RequestedPath> = None;
     
         // loop of the size of the Vector Point and add the addable point at each position of the vector verifying the best path
@@ -201,32 +201,27 @@ impl Builder {
             let mut perm = self.points.clone();
             perm.insert(i, self.addable_point.as_ref().unwrap().clone());
             perm.insert(0, self.start_point.as_ref().unwrap().clone());
-    
-            if self.return_to_start {
-                perm.push(self.start_point.as_ref().unwrap().clone());
-            }
-            
-            let url = self.create_url_path(perm.clone()); // Clone perm just before using it
+
+            let url = self.create_url_path(perm.clone());
             let response = client.clone().get(url)?;
             let body: requested_path::RequestedPath = serde_json::from_str(&response)?;
-            let time = body.routes[0].duration;
-    
-            if best_duration > time {
+            let time = self.calculate_time_with_fix_hour_point(&perm.clone(), body.clone(), self.start_point.as_ref().unwrap().start_at.unwrap());
+
+            if best_duration > time && self.verify_time(&perm.clone(), body.clone()) {
                 best_duration = time;
                 best_path = perm;
                 best_body = Some(body);
             }
         }
-    
         if best_path.is_empty() {
-            return Err(Error::PathError("No best path found".to_string()));
+            return Ok(Either::Right("No best path found".to_string()));
         }
 
-        Ok(Path {
+        Ok(Either::Left(Path {
             points: best_path,
             road: self.get_graphical_path(best_body.unwrap()),
             return_to_start: false,
-        })
+        }))
     }
         
 
