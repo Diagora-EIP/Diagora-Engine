@@ -1,21 +1,16 @@
-# Stage 1: Download and build Rust and Cargo
-FROM rust:latest as rust_builder
+# Stage 1: Build Rust executable
+FROM rust:latest AS rust_builder
 
 # Set the working directory
 WORKDIR /usr/src/app
 
-# Copy the Cargo.toml and Cargo.lock to cache dependencies
-COPY ./Cargo.toml ./Cargo.lock ./
+# Copy only the necessary Rust files for building
+COPY Cargo.lock Cargo.toml ./
 
-# Build a dummy Rust file to cache dependencies
-RUN mkdir src && \
-    echo "fn main() {}" > src/main.rs && \
-    cargo build --release
+# Copy the entire Rust project (excluding unnecessary files)
+COPY src ./src
 
-# Copy the rest of the Rust project
-COPY . .
-
-# Build the actual Rust project
+# Build the Rust executable
 RUN cargo build --release
 
 # Stage 2: Final image with Node.js and Rust
@@ -25,11 +20,13 @@ FROM node:14
 WORKDIR /usr/src/app
 
 # Copy the Node.js application files
-COPY ./package*.json ./
-COPY ./dist ./dist
+COPY package*.json ./
+
+# Copy the compiled Node.js files
+COPY . ./
 
 # Copy the Rust build files
-COPY --from=rust_builder /usr/src/app/target/release/your-rust-executable ./target/release/
+COPY --from=rust_builder /usr/src/app/target/release/engine ./target/release/
 
 # Expose the port
 EXPOSE 9876
@@ -38,4 +35,4 @@ EXPOSE 9876
 RUN npm install
 
 # Command to run your Node.js application
-CMD ["node", "./dist/server.js"]
+CMD ["node", "server.js"]
