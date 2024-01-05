@@ -28,6 +28,10 @@ COPY . ./
 # Copy the Rust build files
 COPY --from=rust_builder /usr/src/app/target/release/engine ./target/release/
 
+# Install Rust
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+ENV PATH="/root/.cargo/bin:${PATH}"
+
 # Expose the port
 EXPOSE 9876
 
