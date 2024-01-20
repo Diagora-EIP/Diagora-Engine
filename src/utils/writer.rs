@@ -16,7 +16,7 @@ pub fn write_in_output<T: serde::Serialize>(filepath: Option<String>, data: &T) 
     }
 }
 
-pub fn write_error_output(filepath: Option<String>, error: &str) -> Result<()> {
+pub fn write_error_output<T: serde::Serialize>(filepath: Option<String>, error: &T) -> Result<()> {
     if let Some(path) = filepath {
         let file = File::create(&path)?;
         to_writer_pretty(file, &error)?;

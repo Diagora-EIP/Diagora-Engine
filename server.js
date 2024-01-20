@@ -21,33 +21,52 @@ deleteJsonFiles = () => {
   });
 }
 
+parseCrashJson = (crashJson) => {
+  let content = crashJson.split("\n");
+  let reasonCrash = "";
+
+  for (let i = 0; i < content.length; i++) {
+    if (content[i].includes("Error:")) {
+      reasonCrash = content[i];
+      break;
+    }
+  }
+  return reasonCrash;
+}
+
 
 app.post("/launch_itinary/", async (req, res) => {
   let fileName = crypto.randomBytes(20).toString("hex") + ".json";
   fs.writeFileSync(fileName, JSON.stringify(req.body));
-  const { stdout, stderr } = await exec(`cargo run -- --createItinary ${fileName}`);
-  console.log(stderr);
-  const content = fs.readFileSync(
-    stdout.replaceAll('"', "").replace("\n", ""),
-    { encoding: "utf8", flag: "r" }
-  );
-  console.log(content);
-  res.send(JSON.parse(content));
-  deleteJsonFiles();
+  try {
+    const { stdout, stderr } = await exec(`cargo run -- --createItinary ${fileName}`);
+    const content = fs.readFileSync(
+      stdout.replaceAll('"', "").replace("\n", ""),
+      { encoding: "utf8", flag: "r" }
+    );
+    res.send(JSON.parse(content));
+    deleteJsonFiles();
+  } catch (error) {
+    deleteJsonFiles();
+    res.send({code: 1,  error: "Error while launching Engine check your json input", reason: parseCrashJson(error.stderr)});
+  }
 });
 
 app.post("/update_itinary/", async (req, res) => {
   let fileName = crypto.randomBytes(20).toString("hex") + ".json";
   fs.writeFileSync(fileName, JSON.stringify(req.body));
-  const { stdout, stderr } = await exec(`cargo run -- --updateItinary ${fileName}`);
-  console.log(stdout);
-  const content = fs.readFileSync(
-    stdout.replaceAll('"', "").replace("\n", ""),
-    { encoding: "utf8", flag: "r" }
-  );
-  console.log(content);
-  res.send(JSON.parse(content));
-  deleteJsonFiles();
+  try {
+    const { stdout, stderr } = await exec(`cargo run -- --updateItinary ${fileName}`);
+    const content = fs.readFileSync(
+      stdout.replaceAll('"', "").replace("\n", ""),
+      { encoding: "utf8", flag: "r" }
+    );
+    res.send(JSON.parse(content));
+    deleteJsonFiles();
+  } catch (error) {
+    deleteJsonFiles();
+    res.send({code: 1,  error: "Error while launching Engine check your json input", reason: parseCrashJson(error.stderr)});
+  }
 });
 
 app.listen(port, () => {

@@ -55,6 +55,8 @@ pub enum DrivingSide {
     Uturn,
     #[serde(rename = "sharp right")]
     SharpRight,
+    #[serde(rename = "sharp left")]
+    SharpLeft,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

@@ -5,3 +5,4 @@ pub mod requested_path;
 pub mod graphical_point;
 
 pub mod either;
+pub mod error_message;

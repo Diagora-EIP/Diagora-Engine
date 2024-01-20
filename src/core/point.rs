@@ -1,4 +1,4 @@
-use crate::prelude::*;
+use crate::{prelude::*, utils::writer::write_error_output};
 use crate::utils::http;
 use ordered_float::OrderedFloat;
 use serde::{Deserialize, Serialize};
@@ -94,7 +94,9 @@ impl Builder {
     ///
     pub fn build(&self) -> Result<Point> {
         if self.x.is_none() || self.y.is_none() {
-            let (x, y) = self.get_address()?;
+            let (x, y) = self.get_address().or(Result::Err(Error::PointError(
+                "Adress not valid provide a valide Adress".to_string(),
+            )))?;
             return Ok(Point {
                 x: OrderedFloat(x),
                 y: OrderedFloat(y),
