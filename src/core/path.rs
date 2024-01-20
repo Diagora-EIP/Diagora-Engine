@@ -5,7 +5,7 @@ use ordered_float::OrderedFloat;
 use crate::core::point;
 use crate::point::Point;
 use crate::prelude::*;
-use crate::types::requested_path;
+use crate::types::{requested_path, error_message};
 use crate::types::graphical_point::{GraphicalPoint, Builder as GraphicalPointBuilder};
 use crate::utils::http;
 use serde::{Deserialize, Serialize};
@@ -105,7 +105,7 @@ impl Builder {
     /// # Return
     ///
     /// * Path - Return the path
-    pub fn build(&self) -> Result<Either<Path, String>> {
+    pub fn build(&self) -> Result<Either<Path, error_message::ErrorMessage>> {
         if self.addable_point.is_some() {
             return Ok(self.add_a_point_to_path()?);
         }
@@ -117,7 +117,7 @@ impl Builder {
     /// # Return
     ///
     /// * Path - Return the best path
-    fn create_best_path(&self) -> Result<Either<Path, String>> {
+    fn create_best_path(&self) -> Result<Either<Path, error_message::ErrorMessage>> {
         let client = http::Builder::new()
             .user_agent("Diagora".to_string())
             .build()?;
@@ -143,7 +143,12 @@ impl Builder {
             }
         }
         if best_path.is_empty() {
-            return Ok(Either::Right("No best path found".to_string()));
+            let error_message = error_message::ErrorMessage {
+                code: 3,
+                error: "No best path found".to_string(),
+                reason: "No best path found".to_string(),
+            };
+            return Ok(Either::Right(error_message));
         }
         Ok(Either::Left(Path {
             points: self.apply_time_to_best_path(&best_path, best_body.clone().unwrap(), self.start_point.as_ref().unwrap().start_at.unwrap()),
@@ -188,7 +193,7 @@ impl Builder {
         return total_time;
     }
 
-    fn add_a_point_to_path(&self) -> Result<Either<Path, String>> {
+    fn add_a_point_to_path(&self) -> Result<Either<Path, error_message::ErrorMessage>> {
         let client = http::Builder::new()
             .user_agent("Diagora".to_string())
             .build()?;
@@ -214,9 +219,13 @@ impl Builder {
             }
         }
         if best_path.is_empty() {
-            return Ok(Either::Right("No best path found".to_string()));
+            let error_message = error_message::ErrorMessage {
+                code: 3,
+                error: "No best path found".to_string(),
+                reason: "No best path found".to_string(),
+            };
+            return Ok(Either::Right(error_message));
         }
-
         Ok(Either::Left(Path {
             points: best_path,
             road: self.get_graphical_path(best_body.unwrap()),

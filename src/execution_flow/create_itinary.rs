@@ -41,6 +41,19 @@ pub fn check_duplicate_point(filepath: Option<String>, points: Vec<point::Point>
     false
 }
 
+fn check_time_gap(points: Vec<point::Point>) -> bool {
+    for window in points.windows(2) {
+        if let (Some(end1), Some(start2)) = (window[0].end_at, window[1].start_at) {
+            let time_gap_hours = (start2 - end1).into_inner() / 3600.0;
+            if time_gap_hours > 16.0 {
+                return true;
+            }
+        }
+    }
+
+    false
+}
+
 pub fn create_itinary(args: ConfigCreate) -> Result<()> {
     if !check_all_data_requirement(args.clone()) {
         return Ok(());
@@ -67,6 +80,15 @@ pub fn create_itinary(args: ConfigCreate) -> Result<()> {
                 return Ok(());
             }
         }
+    }
+    if check_time_gap(points.clone()) {
+        let error = error_message::ErrorMessage {
+            code: 4,
+            error: "Time gap too big".to_string(),
+            reason: "There is more than 16 hours between timestamps".to_string(),
+        };
+        let _ = write_error_output(args.filepath, &error);
+        return Ok(());
     }
     if check_duplicate_point(args.filepath.clone(), points.clone()) {
         return Ok(());

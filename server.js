@@ -22,6 +22,7 @@ deleteJsonFiles = () => {
 }
 
 parseCrashJson = (crashJson) => {
+  console.log(crashJson);
   let content = crashJson.split("\n");
   let reasonCrash = "";
 
@@ -48,6 +49,7 @@ app.post("/launch_itinary/", async (req, res) => {
     deleteJsonFiles();
   } catch (error) {
     deleteJsonFiles();
+    console.log(error);
     res.send({code: 1,  error: "Error while launching Engine check your json input", reason: parseCrashJson(error.stderr)});
   }
 });
