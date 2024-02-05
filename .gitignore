@@ -3,3 +3,5 @@
 tarpaulin-report.html
 node_modules
 *.json
+
+.DS_Store

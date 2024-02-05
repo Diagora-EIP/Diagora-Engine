@@ -1,0 +1,33 @@
+.DS_Store
+
+# Ignore Python bytecode files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+
+# Ignore documentation build files
+docs/build/
+docs/source/.buildinfo
+
+# Ignore environment-specific files
+*.env
+
+# Ignore generated HTML files
+build/
+html/
+
+# Ignore Makefile
+docs/Makefile
+docs/make.bat
+
+# Ignore compiled files
+*.pyc
+
+# Ignore log files
+*.log
+
+# Ignore any file in the LogiqueAlogirthm directory
+LogiqueAlogirthmique
+
