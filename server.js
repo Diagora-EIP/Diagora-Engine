@@ -40,8 +40,8 @@ app.post("/launch_itinary/", async (req, res) => {
   let fileName = crypto.randomBytes(20).toString("hex") + ".json";
   fs.writeFileSync(fileName, JSON.stringify(req.body));
   try {
-    const { stdout, stderr } = await exec(`cargo run -- --createItinary ${fileName}`);
-    const content = fs.readFileSync(
+    const { stdout, stderr } = await exec(`cd ItinaryEngine && cargo run -- --createItinary ../${fileName} && cd ../`);
+    const content = fs.readFileSync("./ItinaryEngine/" +
       stdout.replaceAll('"', "").replace("\n", ""),
       { encoding: "utf8", flag: "r" }
     );
@@ -58,7 +58,7 @@ app.post("/update_itinary/", async (req, res) => {
   let fileName = crypto.randomBytes(20).toString("hex") + ".json";
   fs.writeFileSync(fileName, JSON.stringify(req.body));
   try {
-    const { stdout, stderr } = await exec(`cargo run -- --updateItinary ${fileName}`);
+    const { stdout, stderr } = await exec(`cd ItinaryEngine && cargo run -- --updateItinary ../${fileName} && cd ../`);
     const content = fs.readFileSync(
       stdout.replaceAll('"', "").replace("\n", ""),
       { encoding: "utf8", flag: "r" }
