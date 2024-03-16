@@ -3,5 +3,5 @@ target
 tarpaulin-report.html
 node_modules
 *.json
-
+*.pyc
 .DS_Store

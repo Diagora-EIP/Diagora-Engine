@@ -16,6 +16,7 @@ pub struct Path {
     pub return_to_start: bool,
     pub points: Vec<Point>,
     pub road: Vec<GraphicalPoint>,
+    pub estimated_fuel_used: f64,
 }
 
 /// Builder of Path
@@ -152,9 +153,19 @@ impl Builder {
         }
         Ok(Either::Left(Path {
             points: self.apply_time_to_best_path(&best_path, best_body.clone().unwrap(), self.start_point.as_ref().unwrap().start_at.unwrap()),
-            road: self.get_graphical_path(best_body.unwrap()),
+            road: self.get_graphical_path(best_body.clone().unwrap()),
             return_to_start: false,
+            estimated_fuel_used: self.calculate_fuel_used(best_body.unwrap()),
         }))
+    }
+
+    fn calculate_fuel_used(&self, body: requested_path::RequestedPath) -> f64 {
+        let road = &body.routes[0];
+        let mut fuel_used = 0.0;
+        for leg in road.legs.clone() {
+            fuel_used += leg.distance / 1000.0 * 0.07;
+        }
+        return fuel_used;
     }
 
     fn verify_time(&self, path: &Vec<Point>, body: requested_path::RequestedPath) -> bool {
@@ -230,6 +241,7 @@ impl Builder {
             points: best_path,
             road: self.get_graphical_path(best_body.unwrap()),
             return_to_start: false,
+            estimated_fuel_used: 0.0,
         }))
     }
         
