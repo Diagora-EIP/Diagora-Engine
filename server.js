@@ -16,6 +16,8 @@ deleteJsonFiles = () => {
     for (const file of files) {
       if (file.endsWith(".json") && !file.startsWith("package")) {
         fs.unlinkSync(file);
+      } else if (file.endsWith(".json_result") && !file.startsWith("package")) {
+        fs.unlinkSync(file);
       }
     }
   });
