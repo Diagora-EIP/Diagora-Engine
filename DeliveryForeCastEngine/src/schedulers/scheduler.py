@@ -1,7 +1,7 @@
 import schedule
 import time
 from delivery_forecast.forecasting import perform_forecast
-from services.database_service import get_forecast_interval
+# from infrastructure.repositories import get_forecast_interval
 
 
 class ForecastScheduler:
@@ -31,8 +31,9 @@ class ForecastScheduler:
         """
         import sys
         print(sys.path)  # Print Python path for debugging
-        initial_interval = get_forecast_interval()
+        initial_interval = 30
         schedule.every(initial_interval).hours.do(self._job)
+        self._job()
 
     def _job(self):
         """
@@ -43,7 +44,11 @@ class ForecastScheduler:
         Returns:
             None
         """
-        interval = get_forecast_interval()
+        # interval = get_forecast_interval()
+
+        print(f"Running forecast job at {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())}")
+
+        interval = 30
 
         perform_forecast()
 
@@ -58,6 +63,8 @@ class ForecastScheduler:
         Returns:
             None
         """
+
+        print("Running scheduler")
         while True:
             schedule.run_pending()
             time.sleep(1)
