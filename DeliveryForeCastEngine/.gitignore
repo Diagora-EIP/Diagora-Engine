@@ -30,4 +30,4 @@ docs/make.bat
 
 # Ignore any file in the LogiqueAlogirthm directory
 LogiqueAlogirthmique
-
+env/*

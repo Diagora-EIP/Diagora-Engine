@@ -9,7 +9,6 @@ Subpackages
 
    src.delivery_forecast
    src.schedulers
-   src.services
 
 Submodules
 ----------
