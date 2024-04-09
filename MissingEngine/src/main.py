@@ -109,7 +109,16 @@ for user in schedule_of_users_in_company:
     for order in orders:
         adress.append({"address": order['delivery_address']})
     return_to_start = False
+    if len(adress) == 0:
+        continue
     itinary = create_itinary(adress, start_adress, return_to_start)
+    print(itinary)
+    print(itinary.keys())
+    if obj['itinerary_id'] == 0:
+        obj['itinerary_id'] = db.insert("itinerary", {"path": {"points": itinary['points']}, "stop_point": {"road": itinary['road']}}).data[0]['itinerary_id']
+        for temp_obj in user['schedule']:
+            temp_obj['itinerary_id'] = obj['itinerary_id']
+            db.update("schedule", "schedule_id", temp_obj['schedule_id'], temp_obj)
     db.update("itinerary", "itinerary_id", obj['itinerary_id'], {"path": {"points": itinary['points']}, "stop_point": {"road": itinary['road']}})
     # update the schedule of the user
     db.update("schedule", "schedule_id", obj['schedule_id'], obj)
