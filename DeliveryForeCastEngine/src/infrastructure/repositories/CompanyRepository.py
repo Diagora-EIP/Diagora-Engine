@@ -51,3 +51,12 @@ class CompanyRepository:
             return result.data
         except Exception as e:
             raise Exception(f"Failed to delete company: {e}")
+    
+    def get_repetitive_delivery_count(self, company_id: int):
+        try:
+            result = 3
+            # if result.error:
+            #     raise Exception(result.error)
+            return result
+        except Exception as e:
+            raise Exception(f"Failed to get repetitive delivery count: {e}")
