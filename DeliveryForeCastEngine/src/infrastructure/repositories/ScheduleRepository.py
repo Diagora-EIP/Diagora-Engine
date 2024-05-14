@@ -78,8 +78,8 @@ class ScheduleRepository:
     def insert(self, data):
         try:
             result = self.db.table("schedule").insert(data).execute()
-            if result.error:
-                raise Exception(result.error)
+            # if result.error:
+            #     raise Exception(result.error)
             return result.data
         except Exception as e:
             raise Exception(f"Failed to insert schedule: {e}")

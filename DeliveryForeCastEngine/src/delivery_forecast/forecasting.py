@@ -3,6 +3,8 @@ from infrastructure.dependency_injection import container
 from infrastructure.ORM.entities.company import Company
 from infrastructure.ORM.entities.schedule import Schedule
 from datetime import datetime, timedelta
+import json
+import os
 
 def perform_forecast():
     """
@@ -26,11 +28,11 @@ def perform_forecast():
             start_time = time.time()  # Start time for logging
 
             # Log company name
-            # print(f"Processing deliveries for company: {company.name}")
+            print(f"Processing deliveries for company: {company.name}")
             # print(company.company_id)
             # Get repetitive delivery count for the current company (assuming it's fetched from the database)
             repetitive_delivery_count = company.forecast_threshold
-            print(f"Repetitive delivery count for company {company.name}: {repetitive_delivery_count}")
+            # print(f"Repetitive delivery count for company {company.name}: {repetitive_delivery_count}")
 
             # Retrieve deliveries for the current company (assuming it's fetched from the database)
             deliveries = schedule_repository.find_schedule_by_company_id(company.company_id)
@@ -38,22 +40,18 @@ def perform_forecast():
 
             # Identify repetitive deliveries
             if (deliveries == []):
-                print(company)
-                print("No deliveries found for company: ", company.name)
+                # print(company)
+                # print("No deliveries found for company: ", company.name)
                 continue
 
             repetitive_deliveries = identify_repetitive_deliveries(deliveries, repetitive_delivery_count)
             if (len(repetitive_deliveries) != 0):
-                print(f"\nRepetitive deliveries found for company: {company.name}")
-                print("repetitive deliveries ", repetitive_deliveries)
-
-                # Generate predictions for the identified repetitive deliveries
                 most_recent_delivery = find_most_recent_delivery(repetitive_deliveries)
                 generate_predictions(most_recent_delivery, company.company_id)
 
             # Log time taken for processing and prediction generation for the current company
             end_time = time.time()
-            print(f"Time taken for {company.name}: {end_time - start_time} seconds")
+            # print(f"Time taken for {company.name}: {end_time - start_time} seconds")
 
         return
     except Exception as e:
@@ -107,9 +105,9 @@ def identify_repetitive_deliveries(deliveries, repetitive_delivery_count):
     repetitive_deliveries = []
     for key, data in match_counts.items():
         if data['count'] >= repetitive_delivery_count:
-            print(f"Repetitive delivery dates for client {key[2]} at {key[0]} {key[1]}:")
+            # print(f"Repetitive delivery dates for client {key[2]} at {key[0]} {key[1]}:")
             repetitive_dates = [delivery for delivery in data['deliveries']]
-            print([delivery['order_date'] for delivery in repetitive_dates])
+            # print([delivery['order_date'] for delivery in repetitive_dates])
             repetitive_deliveries.extend(repetitive_dates)
 
     return repetitive_deliveries
@@ -120,29 +118,15 @@ def find_most_recent_delivery(repetitive_deliveries):
     return most_recent_delivery
 
 def generate_predictions(most_recent_delivery, company_id: int):
+    filename = 'schedule.json'
     # Parse most recent delivery date
     most_recent_delivery_date = datetime.strptime(most_recent_delivery['delivery_date'], '%Y-%m-%dT%H:%M:%S%z')
     schedule_repository = container.get_schedule_repository()
     order_repository = container.get_order_repository()
     
-    # Calculate next occurrence of the same day of the week, one week later
     next_week_delivery_date = most_recent_delivery_date + timedelta(weeks=1)
     
-    # Create a forecast delivery with similar description and time of delivery
-    print("\n Most recent delivery: ", most_recent_delivery)
-    #Schedule :
-        #delivery_date: schedule.delivery_date,
-        # order: { order_id: schedule.order.order_id },
-        # user: { user_id: schedule.user.id },
-        # itinerary_id: schedule.itinerary_id,
-        # estimated_time: schedule.estimated_time,
-        # actual_time: schedule.actual_time,
-        # status: schedule.status,
-    #Order :
-        # order_date: order.order_date,
-        # company: { company_id: order.company.id },
-        # delivery_address: order.delivery_address,
-        # description: order.description,
+    # print("\n Most recent delivery: ", most_recent_delivery)
     order = {
         'order_date': next_week_delivery_date.strftime('%Y-%m-%dT%H:%M:%S%z'),
         'company_id': company_id,
@@ -160,10 +144,24 @@ def generate_predictions(most_recent_delivery, company_id: int):
         'forecast': True,
         'order_status': 0
     }
-    schedule_repository.insert(schedule)
+    
+    new_schedule = schedule_repository.insert(schedule)
 
-    print("\n Generarted forecast delivery: ", schedule)
+    # Write schedule dictionary to a JSON file
+    if os.path.exists("schedule.json"):
+        with open("schedule.json", 'r') as json_file:
+            schedule_file = json.load(json_file)
+    else:
+        schedule_file = []
 
+    # Append the new schedule data
+    print("schedule : ", schedule)
+    schedule_file.append(new_schedule)
+
+    # Write the updated schedule list to the JSON file
+    with open("schedule.json", 'w') as json_file:
+        json.dump(schedule_file, json_file, indent=4)
+    print("schedule : ", schedule_file)
     return schedule
 
 # Entry point

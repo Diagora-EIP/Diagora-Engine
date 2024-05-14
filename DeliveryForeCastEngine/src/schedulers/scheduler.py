@@ -30,7 +30,7 @@ class ForecastScheduler:
         Sets up the initial forecasting job based on the forecast interval retrieved from the database.
         """
         import sys
-        print(sys.path)  # Print Python path for debugging
+        # print(sys.path)  # Print Python path for debugging
         initial_interval = 30
         schedule.every(initial_interval).hours.do(self._job)
         self._job()
@@ -46,7 +46,7 @@ class ForecastScheduler:
         """
         # interval = get_forecast_interval()
 
-        print(f"Running forecast job at {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())}")
+        # print(f"Running forecast job at {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())}")
 
         interval = 30
 
@@ -65,6 +65,7 @@ class ForecastScheduler:
         """
 
         print("Running scheduler")
+        exit()
         while True:
             schedule.run_pending()
             time.sleep(1)

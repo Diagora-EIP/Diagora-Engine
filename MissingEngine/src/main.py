@@ -15,8 +15,7 @@ def create_itinary(adress, start_adress, return_to_start):
     }
     url = 'http://localhost:9876/launch_itinary/'
     headers = {'Content-Type': 'application/json'}
-    print(payload)
-
+    
     response = requests.post(url, headers=headers, json=payload)
     data = response.json()
     return data
@@ -40,6 +39,7 @@ db = Database();
 missing_user = db.find('users', 'user_id', missing_user_id).data[0]
 user_of_company = db.find('users', 'company_id', missing_user['company_id']).data
 
+
 # delete missing_user form user_of_company
 for user in user_of_company:
     if user['user_id'] == missing_user_id:
@@ -60,9 +60,6 @@ schedule_of_users_in_company = []
 for user in user_of_company:
     schedules = db.find("schedule", "user_id", user['user_id']).data
     schedule_of_users_in_company.append({"user_id": user['user_id'], "schedule": [obj for obj in schedules if datetime.strptime(obj["delivery_date"], "%Y-%m-%dT%H:%M:%S%z").date() == day_of_absence_date]})
-
-# print(matching_schedule)
-# print(schedule_of_users_in_company)
 
 change_schedule = False
 
@@ -112,8 +109,6 @@ for user in schedule_of_users_in_company:
     if len(adress) == 0:
         continue
     itinary = create_itinary(adress, start_adress, return_to_start)
-    print(itinary)
-    print(itinary.keys())
     if obj['itinerary_id'] == 0:
         obj['itinerary_id'] = db.insert("itinerary", {"path": {"points": itinary['points']}, "stop_point": {"road": itinary['road']}}).data[0]['itinerary_id']
         for temp_obj in user['schedule']:
