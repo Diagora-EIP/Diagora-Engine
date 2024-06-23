@@ -36,6 +36,10 @@ day_of_absence_date = datetime.strptime(jsonContent['day_of_absence'], "%Y-%m-%d
 
 db = Database();
 
+print(missing_user_id)
+
+db.find('itinerary', 'itinerary_id', 56)
+
 missing_user = db.find('users', 'user_id', missing_user_id).data[0]
 user_of_company = db.find('users', 'company_id', missing_user['company_id']).data
 
@@ -73,6 +77,7 @@ for user in schedule_of_users_in_company:
 
 if change_schedule:
     for obj in matching_schedule:
+        obj['proposition'] = True
         db.update("schedule", "schedule_id", obj['schedule_id'], obj)
     file_descriptor.write_file(filepath + "_result", content)
     print(filepath + '_result')
@@ -109,19 +114,13 @@ for user in schedule_of_users_in_company:
     if len(adress) == 0:
         continue
     itinary = create_itinary(adress, start_adress, return_to_start)
-    if obj['itinerary_id'] == 0:
-        obj['itinerary_id'] = db.insert("itinerary", {"path": {"points": itinary['points']}, "stop_point": {"road": itinary['road']}}).data[0]['itinerary_id']
-        for temp_obj in user['schedule']:
-            temp_obj['itinerary_id'] = obj['itinerary_id']
-            db.update("schedule", "schedule_id", temp_obj['schedule_id'], temp_obj)
-    db.update("itinerary", "itinerary_id", obj['itinerary_id'], {"path": {"points": itinary['points']}, "stop_point": {"road": itinary['road']}})
-    # update the schedule of the user
-    db.update("schedule", "schedule_id", obj['schedule_id'], obj)
+
         
 
 # update the schedule of the missing user
 for obj in matching_schedule:
+    obj['proposition'] = True
     db.update("schedule", "schedule_id", obj['schedule_id'], obj)
 
-file_descriptor.write_file(filepath + "_result", content)
+file_descriptor.write_file(filepath + "_result", "Propositions have been made for the missing user.")
 print(filepath + '_result')
