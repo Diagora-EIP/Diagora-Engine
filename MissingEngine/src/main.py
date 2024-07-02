@@ -36,8 +36,6 @@ day_of_absence_date = datetime.strptime(jsonContent['day_of_absence'], "%Y-%m-%d
 
 db = Database();
 
-print(missing_user_id)
-
 db.find('itinerary', 'itinerary_id', 56)
 
 missing_user = db.find('users', 'user_id', missing_user_id).data[0]
