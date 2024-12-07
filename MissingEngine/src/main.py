@@ -55,13 +55,16 @@ if len(user_of_company) == 0:
 
 
 schedule = db.find("schedule", "user_id", missing_user_id).data
-matching_schedule = [obj for obj in schedule if datetime.strptime(obj["delivery_date"], "%Y-%m-%dT%H:%M:%S%z").date() == day_of_absence_date]
+matching_schedule = [obj for obj in schedule if datetime.fromisoformat(obj["delivery_date"]).date() == day_of_absence_date]
 
 schedule_of_users_in_company = []
 
 for user in user_of_company:
     schedules = db.find("schedule", "user_id", user['user_id']).data
-    schedule_of_users_in_company.append({"user_id": user['user_id'], "schedule": [obj for obj in schedules if datetime.strptime(obj["delivery_date"], "%Y-%m-%dT%H:%M:%S%z").date() == day_of_absence_date]})
+    schedule_of_users_in_company.append({
+        "user_id": user['user_id'], 
+        "schedule": [obj for obj in schedules if datetime.fromisoformat(obj["delivery_date"]).date() == day_of_absence_date]
+    })
 
 change_schedule = False
 

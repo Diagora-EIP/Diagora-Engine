@@ -74,17 +74,27 @@ app.post("/update_itinary/", async (req, res) => {
 });
 
 app.post("/missing_deliverer/", async (req, res) => {
+  // console.log("request", req);
+  // console.log("Request Body:", req.body);
+  // console.log("Request Headers:", req.headers);
+  // console.log("Request Method:", req.method);
+
   let fileName = crypto.randomBytes(20).toString("hex") + ".json";
   fs.writeFileSync(fileName, JSON.stringify(req.body));
+  // let { stdout, stderr } = {};
   try {
-    const { stdout, stderr } = await exec(`python3 ./MissingEngine/src/main.py ./${fileName}`);
+    ({ stdout, stderr } = await exec(`python3 ./MissingEngine/src/main.py ./${fileName}`));
+    // console.log("stdout", stdout);
+    // console.log("stderr", stderr);
     const content = fs.readFileSync(
       stdout.replaceAll('"', "").replace("\n", ""),
       { encoding: "utf8", flag: "r" }
     );
+    // console.log("Content", content);
     res.send(JSON.parse(content));
     deleteJsonFiles();
   } catch (error) {
+    // console.log("error", error);
     deleteJsonFiles();
     res.send({code: 1,  error: "Error while launching Engine check your json input", reason: 'error'});
   }

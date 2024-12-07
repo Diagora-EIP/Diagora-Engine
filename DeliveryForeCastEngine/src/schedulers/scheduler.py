@@ -31,7 +31,7 @@ class ForecastScheduler:
         """
         import sys
         # print(sys.path)  # Print Python path for debugging
-        initial_interval = 30
+        initial_interval = 1
         schedule.every(initial_interval).hours.do(self._job)
         self._job()
 
@@ -65,7 +65,6 @@ class ForecastScheduler:
         """
 
         print("Running scheduler")
-        exit()
         while True:
             schedule.run_pending()
             time.sleep(1)
